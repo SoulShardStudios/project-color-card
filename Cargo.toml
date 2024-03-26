@@ -1,0 +1,16 @@
+[package]
+name = "project-color-card"
+version = "0.1.0"
+rust-version = "1.76"
+resolver = "2"
+
+[dependencies]
+bevy = "^0.13"
+bevy-inspector-egui = "^0.23"
+rand = "0.8.5"
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
