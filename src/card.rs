@@ -33,15 +33,10 @@ pub struct Card {
     #[serde(skip)]
     image_handle: Handle<Image>,
 }
-struct CardAssetLoader;
-#[derive(Serialize, Deserialize, Default)]
-struct CardSettings;
 
 create_ron_nested_asset_loader!(
     CardAssetLoader,
     Card,
-    CardSettings,
-    mod_name,
     &["card.ron"],
     CardAssetPlugin,
     image -> image_handle
