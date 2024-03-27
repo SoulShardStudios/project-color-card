@@ -4,9 +4,9 @@ extern crate serde;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::{prelude::*, render::camera::ScalingMode};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+mod card;
 mod ron_asset_macro;
-mod types;
-use types::{Card, CardAssetPlugin};
+use card::{Card, CardAssetPlugin};
 const WINDOW_SIZE: UVec2 = UVec2 { x: 426, y: 240 }; // 240p
 
 #[derive(Component, Reflect)]

@@ -1,6 +1,9 @@
 #[macro_export]
 macro_rules! create_ron_nested_asset_loader {
-    ($loader_name: ident, $asset_name:ident, $settings_name: ident, $module_name: ident, $extensions: expr, $asset_plugin_name: ident, $($string_name: ident -> $handle_name: ident)*) => {
+    ($loader_name: ident, $asset_name:ident, $extensions: expr, $asset_plugin_name: ident, $($string_name: ident -> $handle_name: ident)*) => {
+        struct $loader_name;
+        #[derive(Serialize, Deserialize, Default)]
+        struct EmptySettings;
 
         fn finalize_assets(
             mut asset_events: EventReader<AssetEvent<$asset_name>>,
@@ -23,12 +26,12 @@ macro_rules! create_ron_nested_asset_loader {
         impl AssetLoader for $loader_name {
             type Asset = $asset_name;
             type Error = std::io::Error;
-            type Settings = $settings_name;
+            type Settings = EmptySettings;
 
             fn load<'a>(
                 &'a self,
                 reader: &'a mut Reader,
-                _settings: &'a $settings_name,
+                _settings: &'a EmptySettings,
                 _load_context: &'a mut LoadContext,
             ) -> BoxedFuture<'a, Result<$asset_name, Self::Error>> {
                 use bevy::asset::{ron, AsyncReadExt};
