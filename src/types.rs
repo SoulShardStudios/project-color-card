@@ -1,6 +1,6 @@
 use crate::create_ron_asset_loader;
 use bevy::{
-    asset::{io::Reader, ron, AssetLoader, AsyncReadExt, LoadContext},
+    asset::{io::Reader, AssetLoader, LoadContext},
     prelude::*,
     reflect::TypePath,
     utils::BoxedFuture,
@@ -25,26 +25,23 @@ enum CardType {
 }
 
 #[derive(Serialize, Deserialize, Asset, TypePath, Debug)]
-struct CardMetadata {
+struct Card {
     colors: Vec<CardColor>,
     card_type: CardType,
     text: String,
+    image: String,
+    #[serde(skip)]
+    image_handle: Handle<Image>,
 }
-struct CardMetadataAssetLoader;
+struct CardAssetLoader;
 #[derive(Serialize, Deserialize, Default)]
-struct CardMetadataSettings;
+struct CardSettings;
 
 create_ron_asset_loader!(
-    CardMetadataAssetLoader,
-    CardMetadata,
-    CardMetadataSettings,
+    CardAssetLoader,
+    Card,
+    CardSettings,
     mod_name,
-    &["ron"],
-    CardMetadataAssetPlugin
+    &["card.ron"],
+    CardAssetPlugin
 );
-
-#[derive(Bundle, Default)]
-struct Card {
-    image: Handle<Image>,
-    card_metadata: Handle<CardMetadata>,
-}
