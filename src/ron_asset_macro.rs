@@ -1,14 +1,11 @@
-use bevy::{
-    asset::{ron, transformer},
-    prelude::*,
-};
-
 #[macro_export]
 macro_rules! create_ron_asset_loader {
     ($loader_name: ident, $asset_name:ident, $settings_name: ident, $module_name: ident, $extensions: expr, $asset_plugin_name: ident) => {
-
-        fn finalize_assets(mut asset_events: EventReader<AssetEvent<$asset_name>>, mut assets: ResMut<Assets<$asset_name>>, asset_server: Res<AssetServer>) {
-
+        fn finalize_assets(
+            mut asset_events: EventReader<AssetEvent<$asset_name>>,
+            mut assets: ResMut<Assets<$asset_name>>,
+            asset_server: Res<AssetServer>,
+        ) {
         }
 
         impl AssetLoader for $loader_name {
@@ -22,6 +19,7 @@ macro_rules! create_ron_asset_loader {
                 _settings: &'a $settings_name,
                 _load_context: &'a mut LoadContext,
             ) -> BoxedFuture<'a, Result<$asset_name, Self::Error>> {
+                use bevy::asset::{ron, AsyncReadExt};
                 Box::pin(async move {
                     let mut bytes = Vec::new();
                     reader.read_to_end(&mut bytes).await?;
