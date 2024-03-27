@@ -1,13 +1,13 @@
 [package]
 name = "project-color-card"
 version = "0.1.0"
-rust-version = "1.76"
-resolver = "2"
+edition = "2021"
 
 [dependencies]
 bevy = "^0.13"
 bevy-inspector-egui = "^0.23"
 rand = "0.8.5"
+serde = { version = "1.0.197", features = ["derive"] }
 
 [profile.dev]
 opt-level = 1

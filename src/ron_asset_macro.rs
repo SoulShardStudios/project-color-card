@@ -1,7 +1,16 @@
-use bevy::asset::{ron, transformer};
+use bevy::{
+    asset::{ron, transformer},
+    prelude::*,
+};
+
 #[macro_export]
 macro_rules! create_ron_asset_loader {
     ($loader_name: ident, $asset_name:ident, $settings_name: ident, $module_name: ident, $extensions: expr, $asset_plugin_name: ident) => {
+
+        fn finalize_assets(mut asset_events: EventReader<AssetEvent<$asset_name>>, mut assets: ResMut<Assets<$asset_name>>, asset_server: Res<AssetServer>) {
+
+        }
+
         impl AssetLoader for $loader_name {
             type Asset = $asset_name;
             type Error = std::io::Error;
