@@ -1,6 +1,6 @@
-{
+Card(
     colors:[Red,Yellow,Blue],
     card_type: Hero,
     text: "",
-    image: "assets/cards/astrich.png"
-}
+    image: "cards/ostrich.png"
+)

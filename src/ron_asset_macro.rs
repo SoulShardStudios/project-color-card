@@ -1,11 +1,23 @@
 #[macro_export]
-macro_rules! create_ron_asset_loader {
-    ($loader_name: ident, $asset_name:ident, $settings_name: ident, $module_name: ident, $extensions: expr, $asset_plugin_name: ident) => {
+macro_rules! create_ron_nested_asset_loader {
+    ($loader_name: ident, $asset_name:ident, $settings_name: ident, $module_name: ident, $extensions: expr, $asset_plugin_name: ident, $($string_name: ident -> $handle_name: ident)*) => {
+
         fn finalize_assets(
             mut asset_events: EventReader<AssetEvent<$asset_name>>,
             mut assets: ResMut<Assets<$asset_name>>,
             asset_server: Res<AssetServer>,
         ) {
+            for event in asset_events.read() {
+                match event {
+                    AssetEvent::Added { id } => {
+                        let x = assets.get_mut(*id).unwrap();
+                        $(
+                            x.$handle_name = asset_server.load(&x.$string_name);
+                        )*
+                    }
+                    _default => {}
+                }
+            }
         }
 
         impl AssetLoader for $loader_name {
@@ -26,7 +38,7 @@ macro_rules! create_ron_asset_loader {
                     return match ron::de::from_bytes(&bytes) {
                         Err(_err) => Err(std::io::Error::new(
                             std::io::ErrorKind::Other,
-                            "failed to parse ron object",
+                            _err,
                         )),
                         Ok(ok) => Ok(ok),
                     };
@@ -43,7 +55,7 @@ macro_rules! create_ron_asset_loader {
         impl Plugin for $asset_plugin_name {
             fn build(&self, app: &mut App) {
                 app.init_asset::<$asset_name>()
-                    .register_asset_loader($loader_name);
+                    .register_asset_loader($loader_name).add_systems(Update, finalize_assets);
             }
         }
     };
