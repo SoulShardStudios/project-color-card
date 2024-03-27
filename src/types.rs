@@ -1,4 +1,4 @@
-use crate::create_ron_asset_loader;
+use crate::create_ron_nested_asset_loader;
 use bevy::{
     asset::{io::Reader, AssetLoader, LoadContext},
     prelude::*,
@@ -25,7 +25,7 @@ enum CardType {
 }
 
 #[derive(Serialize, Deserialize, Asset, TypePath, Debug)]
-struct Card {
+pub struct Card {
     colors: Vec<CardColor>,
     card_type: CardType,
     text: String,
@@ -37,11 +37,12 @@ struct CardAssetLoader;
 #[derive(Serialize, Deserialize, Default)]
 struct CardSettings;
 
-create_ron_asset_loader!(
+create_ron_nested_asset_loader!(
     CardAssetLoader,
     Card,
     CardSettings,
     mod_name,
     &["card.ron"],
-    CardAssetPlugin
+    CardAssetPlugin,
+    image -> image_handle
 );
