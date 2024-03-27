@@ -1,0 +1,6 @@
+Card(
+    colors: [Yellow],
+    card_type: Equipment,
+    text: "",
+    image: "cards/Mural.png"
+)

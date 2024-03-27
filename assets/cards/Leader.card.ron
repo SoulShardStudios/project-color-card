@@ -1,0 +1,6 @@
+Card(
+    colors: [Yellow, Red, Blue],
+    card_type: Hero,
+    text: "",
+    image: "cards/Leader.png"
+)
