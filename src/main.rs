@@ -9,9 +9,9 @@ mod ron_asset_macro;
 use card::{Card, CardAssetPlugin};
 const WINDOW_SIZE: UVec2 = UVec2 { x: 426, y: 240 }; // 240p
 
-#[derive(Component, Reflect)]
+#[derive(Resource)]
 struct CardTest {
-    pub _card: Handle<Card>,
+    pub _card: UntypedHandle,
 }
 
 fn main() {
@@ -23,13 +23,13 @@ fn main() {
         .add_plugins(CardAssetPlugin)
         .add_systems(Startup, setup)
         .add_systems(Update, print_assets)
-        .register_type::<CardTest>()
         .run();
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let card: Handle<Card> = asset_server.load("cards/ostrich.card.ron");
-    commands.spawn(CardTest { _card: card });
+    commands.insert_resource(CardTest {
+        _card: asset_server.load_folder("cards").into(),
+    });
 
     commands.spawn(Camera2dBundle {
         projection: OrthographicProjection {
