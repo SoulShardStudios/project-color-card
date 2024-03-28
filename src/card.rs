@@ -7,7 +7,7 @@ use bevy::{
 };
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
-enum CardColor {
+pub enum CardColor {
     Red,
     Yellow,
     Blue,
@@ -16,7 +16,7 @@ enum CardColor {
     Teal,
 }
 #[derive(Debug, Serialize, Deserialize)]
-enum CardType {
+pub enum CardType {
     Hero,
     Beast,
     Equipment,
@@ -26,12 +26,12 @@ enum CardType {
 
 #[derive(Serialize, Deserialize, Asset, TypePath, Debug)]
 pub struct Card {
-    colors: Vec<CardColor>,
-    card_type: CardType,
-    text: String,
+    pub colors: Vec<CardColor>,
+    pub card_type: CardType,
+    pub text: String,
     image: String,
     #[serde(skip)]
-    image_handle: Handle<Image>,
+    pub image_handle: Handle<Image>,
 }
 
 create_ron_nested_asset_loader!(
