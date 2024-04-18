@@ -1,4 +1,5 @@
 Card(
+    name: "CaveMan"
     colors: [Yellow],
     card_type: Hero,
     text: "",

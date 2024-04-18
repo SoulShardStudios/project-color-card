@@ -9,8 +9,10 @@ mod card;
 mod ron_asset_macro;
 use bevy_rand::prelude::{EntropyPlugin, WyRand};
 use card::{Card, CardAssetPlugin};
-mod game;
-use game::{setup_game_ui, CardManager};
+mod main_ui;
+use main_ui::GameUIPlugin;
+mod slots;
+use slots::CardManager;
 #[derive(Resource)]
 struct CardTest {
     pub _card: UntypedHandle,
@@ -24,8 +26,8 @@ fn main() {
         .add_plugins(WorldInspectorPlugin::new())
         .add_plugins(CardAssetPlugin)
         .add_plugins(EntropyPlugin::<WyRand>::default())
+        .add_plugins(GameUIPlugin)
         .add_systems(Startup, setup)
-        .add_systems(Startup, setup_game_ui)
         .run();
 }
 

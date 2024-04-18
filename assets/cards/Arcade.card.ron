@@ -1,4 +1,5 @@
 Card(
+    name: "Arcade"
     colors: [Blue, Red],
     card_type: Beast,
     text: "",
