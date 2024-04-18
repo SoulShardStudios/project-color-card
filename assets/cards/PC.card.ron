@@ -1,4 +1,5 @@
 Card(
+    name: "PC"
     colors: [Blue],
     card_type: Beast,
     text: "",

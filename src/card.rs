@@ -26,6 +26,7 @@ pub enum CardType {
 
 #[derive(Serialize, Deserialize, Asset, TypePath, Debug)]
 pub struct Card {
+    pub name: String,
     pub colors: Vec<CardColor>,
     pub card_type: CardType,
     pub text: String,

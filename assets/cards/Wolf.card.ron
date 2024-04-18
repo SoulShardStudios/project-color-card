@@ -1,4 +1,5 @@
 Card(
+    name: "Wolf"
     colors: [Red, Yellow],
     card_type: Beast,
     text: "",

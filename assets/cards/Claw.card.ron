@@ -1,4 +1,5 @@
 Card(
+    name: "Claw"
     colors: [Red, Yellow],
     card_type: Equipment,
     text: "",
