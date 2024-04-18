@@ -1,5 +1,5 @@
 Card(
-    name: "Training"
+    name: "Training",
     colors: [Red],
     card_type: Equipment,
     text: "",
