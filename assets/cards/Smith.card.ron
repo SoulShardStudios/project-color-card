@@ -1,5 +1,5 @@
 Card(
-    name: "Smith"
+    name: "Smith",
     colors: [Red, Yellow, Blue],
     card_type: Hero,
     text: "",

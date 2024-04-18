@@ -1,5 +1,5 @@
 Card(
-    name: "Otter"
+    name: "Otter",
     colors: [Red, Yellow, Blue],
     card_type: Beast,
     text: "",
