@@ -1,3 +1,5 @@
+use std::clone;
+
 use crate::create_ron_nested_asset_loader;
 use bevy::{
     asset::{io::Reader, AssetLoader, LoadContext},
@@ -6,7 +8,7 @@ use bevy::{
     utils::BoxedFuture,
 };
 use serde::{Deserialize, Serialize};
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum CardColor {
     Red,
     Yellow,
@@ -15,7 +17,7 @@ pub enum CardColor {
     Purple,
     Teal,
 }
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub enum CardType {
     Hero,
     Beast,
@@ -35,13 +37,13 @@ pub struct Card {
     pub image_handle: Handle<Image>,
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub enum CardBackType {
     CardType(CardType),
     Discard,
 }
 
-#[derive(Serialize, Deserialize, Asset, TypePath, Debug)]
+#[derive(Serialize, Deserialize, Asset, TypePath, Debug, PartialEq, Eq)]
 pub struct CardBack {
     pub card_type: CardBackType,
     image: String,
@@ -54,12 +56,15 @@ create_ron_nested_asset_loader!(
     Card,
     &["card.ron"],
     CardAssetPlugin,
-    image -> image_handle,card_assets
+    image -> image_handle,
+    card_assets
 );
 
 create_ron_nested_asset_loader!(
     CardBackAssetLoader,
     CardBack,
     &["back.ron"],
-    CardBackAssetPlugin,,card_back_assets
+    CardBackAssetPlugin,
+    image -> image_handle,
+    card_back_assets
 );

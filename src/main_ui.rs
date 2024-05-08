@@ -1,6 +1,8 @@
-use crate::cards::{Card, CardAssetPlugin, CardBack, CardBackAssetPlugin, CardBackType};
-use bevy::asset::LoadedFolder;
+use crate::assets::LoadState;
+use crate::cards::{Card, CardAssetPlugin, CardBack, CardBackAssetPlugin, CardBackType, CardType};
+use bevy::asset::{LoadedFolder, UntypedAssetId};
 use bevy::prelude::*;
+use bevy::reflect::Tuple;
 use bevy_rand::prelude::WyRand;
 use bevy_rand::resource::GlobalEntropy;
 use rand::Rng;
@@ -53,56 +55,13 @@ pub fn setup_game_ui(mut commands: Commands, card_backs: Res<Assets<CardBack>>) 
                         width: Val::Percent(10.0),
                         height: Val::Percent(100.0),
                         justify_content: JustifyContent::SpaceBetween,
+                        align_items: AlignItems::Center,
+                        flex_direction: FlexDirection::Column,
                         ..default()
                     },
                     ..default()
                 })
-                .with_children(|parent| {
-                    parent
-                        .spawn(ButtonBundle {
-                            style: Style {
-                                height: Val::Percent(100.0),
-                                aspect_ratio: Some(72.0 / 102.0),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            ..default()
-                        })
-                        .with_children(|parent| {
-                            parent.spawn(ImageBundle {
-                                style: Style {
-                                    height: Val::Percent(100.0),
-                                    aspect_ratio: Some(72.0 / 102.0),
-                                    ..default()
-                                },
-                                ..default()
-                            });
-                        })
-                        .insert(CardDeckMarker);
-                    parent
-                        .spawn(ImageBundle {
-                            style: Style {
-                                height: Val::Percent(100.0),
-                                aspect_ratio: Some(72.0 / 102.0),
-                                ..default()
-                            },
-                            image: UiImage {
-                                texture: card_backs
-                                    .iter()
-                                    .filter(|(_, back)| back.card_type == CardBackType::Discard)
-                                    .nth(0)
-                                    .unwrap()
-                                    .1
-                                    .image_handle
-                                    .clone(),
-                                ..default()
-                            },
-                            ..default()
-                        })
-                        .insert(DiscardMarker);
-                });
-
+                .with_children(|parent| spawn_card_piles(parent, &card_backs));
             parent
                 .spawn(NodeBundle {
                     style: Style {
@@ -179,6 +138,57 @@ fn spawn_slots_for_team<'a>(
                     });
             }
         });
+}
+
+fn spawn_card_piles<'a>(parent: &mut ChildBuilder<'a>, card_backs: &Res<Assets<CardBack>>) {
+    let discard_back = card_backs
+        .iter()
+        .filter(|(_, back)| back.card_type == CardBackType::Discard)
+        .nth(0)
+        .map(|x| x.1.image_handle.clone())
+        .unwrap_or(Handle::default());
+    println!(
+        "{:#?}",
+        card_backs
+            .iter()
+            .map(|x| x.1.card_type.clone())
+            .collect::<Vec<CardBackType>>()
+    );
+    parent
+        .spawn(ButtonBundle {
+            style: Style {
+                width: Val::Percent(100.0),
+                aspect_ratio: Some(72.0 / 102.0),
+                ..default()
+            },
+            ..default()
+        })
+        .with_children(|parent| {
+            parent.spawn(ImageBundle {
+                style: Style {
+                    width: Val::Percent(100.0),
+                    aspect_ratio: Some(72.0 / 102.0),
+                    ..default()
+                },
+                ..default()
+            });
+        })
+        .insert(CardDeckMarker);
+    parent
+        .spawn(ImageBundle {
+            style: Style {
+                width: Val::Percent(100.0),
+                aspect_ratio: Some(72.0 / 102.0),
+
+                ..default()
+            },
+            image: UiImage {
+                texture: discard_back,
+                ..default()
+            },
+            ..default()
+        })
+        .insert(DiscardMarker);
 }
 
 #[derive(Component)]
@@ -265,18 +275,6 @@ fn set_cards(
 
 pub struct GameUIPlugin;
 
-#[derive(Resource, Default, Reflect)]
-struct Cards {
-    cards: Handle<LoadedFolder>,
-    card_backs: Handle<LoadedFolder>,
-}
-
-fn load_cards(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.insert_resource(Cards {
-        card_backs: asset_server.load_folder("card_backs"),
-        cards: asset_server.load_folder("cards"),
-    });
-}
 fn spawn_game_ui_controller(mut commands: Commands, cards: Res<Assets<Card>>) {
     commands.spawn(GameUIController::new(&cards));
 }
@@ -288,36 +286,11 @@ pub enum GameState {
     ApplyMoves,
 }
 
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, States, Reflect)]
-pub enum LoadState {
-    #[default]
-    Unloaded,
-    Loaded,
-}
-
-fn check_assets_folder_loaded(
-    mut next_state: ResMut<NextState<LoadState>>,
-    mut events: EventReader<AssetEvent<LoadedFolder>>,
-    cards: Res<Cards>,
-) {
-    for event in events.read() {
-        if event.is_loaded_with_dependencies(cards.cards.clone()) {
-            next_state.set(LoadState::Loaded)
-        }
-    }
-}
-
 impl Plugin for GameUIPlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<GameState>()
             .add_plugins(CardAssetPlugin)
             .add_plugins(CardBackAssetPlugin)
-            .init_state::<LoadState>()
-            .add_systems(OnEnter(LoadState::Unloaded), load_cards)
-            .add_systems(
-                Update,
-                check_assets_folder_loaded.run_if(in_state(LoadState::Unloaded)),
-            )
             .add_systems(
                 OnEnter(LoadState::Loaded),
                 (setup_game_ui, spawn_game_ui_controller),
