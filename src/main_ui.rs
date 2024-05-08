@@ -1,8 +1,6 @@
 use crate::assets::LoadState;
-use crate::cards::{Card, CardAssetPlugin, CardBack, CardBackAssetPlugin, CardBackType, CardType};
-use bevy::asset::{LoadedFolder, UntypedAssetId};
+use crate::cards::{Card, CardAssetPlugin, CardBack, CardBackAssetPlugin, CardBackType};
 use bevy::prelude::*;
-use bevy::reflect::Tuple;
 use bevy_rand::prelude::WyRand;
 use bevy_rand::resource::GlobalEntropy;
 use rand::Rng;
