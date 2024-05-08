@@ -1,8 +1,11 @@
 use crate::card::Card;
-use bevy::{prelude::*, render::render_graph::SlotType};
-use bevy_rand::resource;
+use bevy::asset::LoadedFolder;
+use bevy::ecs::query::{QueryData, WorldQuery};
+use bevy::prelude::*;
+use bevy_rand::prelude::WyRand;
+use bevy_rand::resource::GlobalEntropy;
+use rand::Rng;
 use std::collections::BTreeMap;
-use std::sync::Arc;
 
 const CARD_SLOT_COUNT: usize = 8;
 
@@ -11,20 +14,21 @@ pub enum Team {
     Red,
     Blue,
 }
+
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum CardSlotType {
     Hand,
     Play,
 }
 
-#[derive(Component)]
+#[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct CardSlot {
-    pub id: u32,
+    pub id: usize,
     pub team: Team,
     pub slot_type: CardSlotType,
 }
 
-pub fn setup_game_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn setup_game_ui(mut commands: Commands) {
     commands
         .spawn(NodeBundle {
             style: Style {
@@ -124,48 +128,138 @@ fn spawn_slots_for_team<'a>(
         });
 }
 
-#[derive(Resource)]
-pub struct GameUIController<'a> {
-    card_names: BTreeMap<(Team, CardSlotType), Vec<Option<&'a str>>>,
+#[derive(Component)]
+pub struct GameUIController {
+    card_names: BTreeMap<CardSlot, Option<AssetId<Card>>>,
+    valid_new_cards: Vec<AssetId<Card>>,
+    set_card_actions: Vec<(CardSlot, AssetId<Card>)>,
 }
 
-impl<'a> GameUIController<'a> {
-    pub fn new() -> Self {
-        let mut map: BTreeMap<(Team, CardSlotType), Vec<Option<&'a str>>> = BTreeMap::new();
+impl GameUIController {
+    pub fn new(cards: &Res<Assets<Card>>) -> Self {
+        let mut map: BTreeMap<CardSlot, Option<AssetId<Card>>> = BTreeMap::new();
         for team in [Team::Blue, Team::Red] {
             for slot_type in [CardSlotType::Hand, CardSlotType::Play] {
-                map.insert((team, slot_type), Vec::with_capacity(CARD_SLOT_COUNT));
+                for slot_id in 0..CARD_SLOT_COUNT {
+                    map.insert(
+                        CardSlot {
+                            id: slot_id,
+                            slot_type: slot_type,
+                            team: team,
+                        },
+                        None,
+                    );
+                }
             }
         }
-        GameUIController { card_names: map }
+        GameUIController {
+            card_names: map,
+            valid_new_cards: cards
+                .iter()
+                .filter(|(_id, card)| -> bool { card.colors.len() < 3 })
+                .map(|x| -> AssetId<Card> { x.0 })
+                .collect(),
+            set_card_actions: vec![],
+        }
     }
-    pub fn get_card_id(self, team: Team, slot_type: CardSlotType, id: usize) -> Option<&'a str> {
-        self.card_names[&(team, slot_type)][id].clone()
+    pub fn get_card_id(&self, slot: &CardSlot) -> Option<AssetId<Card>> {
+        self.card_names[slot].clone()
     }
-    pub fn set_card(
-        mut self,
-        mut query: Query<(&CardSlot, &mut UiImage)>,
-        team: Team,
-        slot_type: CardSlotType,
-        id: usize,
-        card: &'a Card,
-    ) {
+    pub fn set_card<'a>(&mut self, slot: &'a CardSlot, card: AssetId<Card>) {
+        self.set_card_actions.push((slot.clone(), card));
+    }
+
+    pub fn get_random_card(
+        &self,
+        rng: &mut ResMut<GlobalEntropy<WyRand>>,
+    ) -> Option<AssetId<Card>> {
+        if self.valid_new_cards.len() == 0 {
+            return None;
+        }
+
+        return Some(self.valid_new_cards[rng.gen_range(0usize..self.valid_new_cards.len() - 1)]);
+    }
+}
+
+fn set_cards(
+    mut game_ui_controller_query: Query<&mut GameUIController>,
+    cards: Res<Assets<Card>>,
+    mut query: Query<(&CardSlot, &mut UiImage)>,
+) {
+    let mut game_ui_controller = match game_ui_controller_query.iter_mut().nth(0) {
+        None => {
+            return;
+        }
+        Some(x) => x,
+    };
+    for (slot, card) in game_ui_controller.set_card_actions.clone() {
+        let card_asset = cards.get(card).unwrap();
         query
             .iter_mut()
-            .filter(|(x, _)| x.slot_type == slot_type && x.team == team)
-            .nth(id)
+            .filter(|(x, _)| **x == slot)
+            .nth(slot.id)
             .unwrap()
             .1
-            .texture = card.image_handle.clone();
-        self.card_names.get_mut(&(team, slot_type)).unwrap()[id] = Some(&card.name);
+            .texture = card_asset.image_handle.clone();
+        game_ui_controller.card_names.remove(&slot);
+        game_ui_controller
+            .card_names
+            .insert(slot.clone(), Some(card));
     }
+    game_ui_controller.set_card_actions.clear();
 }
 
 pub struct GameUIPlugin;
 
+#[derive(Resource, Default)]
+struct Cards(AssetId<LoadedFolder>);
+
+fn load_cards(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands.insert_resource(Cards(asset_server.load_folder("cards").into()));
+}
+fn spawn_game_ui_controller(mut commands: Commands, cards: Res<Assets<Card>>) {
+    commands.spawn(GameUIController::new(&cards));
+}
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, States)]
+pub enum GameState {
+    #[default]
+    DrawCards,
+    PlayCards,
+    ApplyMoves,
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, States)]
+pub enum LoadState {
+    #[default]
+    Unloaded,
+    Loaded,
+}
+
+fn check_assets_folder_loaded(
+    mut next_state: ResMut<NextState<LoadState>>,
+    mut events: EventReader<AssetEvent<LoadedFolder>>,
+    cards: Res<Cards>,
+) {
+    for event in events.read() {
+        if event.is_loaded_with_dependencies(cards.0) {
+            next_state.set(LoadState::Loaded)
+        }
+    }
+}
+
 impl Plugin for GameUIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup_game_ui)
-            .insert_resource(GameUIController::new());
+        app.init_state::<GameState>()
+            .init_state::<LoadState>()
+            .add_systems(OnEnter(LoadState::Unloaded), load_cards)
+            .add_systems(
+                Update,
+                check_assets_folder_loaded.run_if(in_state(LoadState::Unloaded)),
+            )
+            .add_systems(
+                OnEnter(LoadState::Loaded),
+                (setup_game_ui, spawn_game_ui_controller),
+            )
+            .add_systems(Update, set_cards);
     }
 }
