@@ -8,15 +8,10 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 mod card;
 mod ron_asset_macro;
 use bevy_rand::prelude::{EntropyPlugin, WyRand};
+use bevy_rand::resource::GlobalEntropy;
 use card::{Card, CardAssetPlugin};
 mod main_ui;
-use main_ui::GameUIPlugin;
-mod slots;
-use slots::CardManager;
-#[derive(Resource)]
-struct CardTest {
-    pub _card: UntypedHandle,
-}
+use main_ui::{CardSlot, CardSlotType, GameUIController, GameUIPlugin};
 
 fn main() {
     App::new()
@@ -28,13 +23,37 @@ fn main() {
         .add_plugins(EntropyPlugin::<WyRand>::default())
         .add_plugins(GameUIPlugin)
         .add_systems(Startup, setup)
+        .add_systems(Update, draw_cards)
         .run();
 }
 
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>, cards: Res<Assets<Card>>) {
-    commands.insert_resource(CardTest {
-        _card: asset_server.load_folder("cards").into(),
-    });
+fn setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
-    commands.insert_resource(CardManager::new(&cards))
+}
+
+fn draw_cards(
+    mut game_ui: Query<&mut GameUIController>,
+    mut rng: ResMut<GlobalEntropy<WyRand>>,
+    cards: Res<Assets<Card>>,
+) {
+    println!(
+        "{:#?}",
+        cards.iter().map(|x| x.0).collect::<Vec<AssetId<Card>>>()
+    );
+    return;
+    let mut game_ui = match game_ui.iter_mut().nth(0) {
+        None => {
+            return;
+        }
+        Some(x) => x,
+    };
+    let card = game_ui.get_random_card(&mut rng).unwrap();
+    game_ui.set_card(
+        &CardSlot {
+            id: 0,
+            team: main_ui::Team::Blue,
+            slot_type: CardSlotType::Play,
+        },
+        card,
+    );
 }
