@@ -5,7 +5,7 @@ extern crate serde;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-mod card;
+mod cards;
 mod ron_asset_macro;
 use bevy_rand::prelude::{EntropyPlugin, WyRand};
 use bevy_rand::resource::GlobalEntropy;

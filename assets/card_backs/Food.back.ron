@@ -1,0 +1,4 @@
+CardBack (
+    card_type: CardType(Food),
+    image: "card_backs/Food_Back.png"
+)
