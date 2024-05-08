@@ -1,4 +1,4 @@
-use crate::card::Card;
+use crate::card::{Card, CardAssetPlugin};
 use bevy::asset::LoadedFolder;
 use bevy::ecs::query::{QueryData, WorldQuery};
 use bevy::prelude::*;
@@ -211,11 +211,11 @@ fn set_cards(
 
 pub struct GameUIPlugin;
 
-#[derive(Resource, Default)]
-struct Cards(AssetId<LoadedFolder>);
+#[derive(Resource, Default, Reflect)]
+struct Cards(Handle<LoadedFolder>);
 
 fn load_cards(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.insert_resource(Cards(asset_server.load_folder("cards").into()));
+    commands.insert_resource(Cards(asset_server.load_folder("cards")));
 }
 fn spawn_game_ui_controller(mut commands: Commands, cards: Res<Assets<Card>>) {
     commands.spawn(GameUIController::new(&cards));
@@ -241,7 +241,7 @@ fn check_assets_folder_loaded(
     cards: Res<Cards>,
 ) {
     for event in events.read() {
-        if event.is_loaded_with_dependencies(cards.0) {
+        if event.is_loaded_with_dependencies(cards.0.clone()) {
             next_state.set(LoadState::Loaded)
         }
     }
@@ -250,6 +250,7 @@ fn check_assets_folder_loaded(
 impl Plugin for GameUIPlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<GameState>()
+            .add_plugins(CardAssetPlugin)
             .init_state::<LoadState>()
             .add_systems(OnEnter(LoadState::Unloaded), load_cards)
             .add_systems(

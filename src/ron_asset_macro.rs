@@ -12,7 +12,7 @@ macro_rules! create_ron_nested_asset_loader {
         ) {
             for event in asset_events.read() {
                 match event {
-                    AssetEvent::Added { id } => {
+                    AssetEvent::LoadedWithDependencies { id } => {
                         let x = assets.get_mut(*id).unwrap();
                         $(
                             x.$handle_name = asset_server.load(&x.$string_name);

@@ -9,7 +9,7 @@ mod card;
 mod ron_asset_macro;
 use bevy_rand::prelude::{EntropyPlugin, WyRand};
 use bevy_rand::resource::GlobalEntropy;
-use card::{Card, CardAssetPlugin};
+use card::Card;
 mod main_ui;
 use main_ui::{CardSlot, CardSlotType, GameUIController, GameUIPlugin};
 
@@ -19,7 +19,6 @@ fn main() {
         .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(FrameTimeDiagnosticsPlugin::default())
         .add_plugins(WorldInspectorPlugin::new())
-        .add_plugins(CardAssetPlugin)
         .add_plugins(EntropyPlugin::<WyRand>::default())
         .add_plugins(GameUIPlugin)
         .add_systems(Startup, setup)
@@ -31,16 +30,7 @@ fn setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
 }
 
-fn draw_cards(
-    mut game_ui: Query<&mut GameUIController>,
-    mut rng: ResMut<GlobalEntropy<WyRand>>,
-    cards: Res<Assets<Card>>,
-) {
-    println!(
-        "{:#?}",
-        cards.iter().map(|x| x.0).collect::<Vec<AssetId<Card>>>()
-    );
-    return;
+fn draw_cards(mut game_ui: Query<&mut GameUIController>, mut rng: ResMut<GlobalEntropy<WyRand>>) {
     let mut game_ui = match game_ui.iter_mut().nth(0) {
         None => {
             return;
