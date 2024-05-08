@@ -9,7 +9,6 @@ mod card;
 mod ron_asset_macro;
 use bevy_rand::prelude::{EntropyPlugin, WyRand};
 use bevy_rand::resource::GlobalEntropy;
-use card::Card;
 mod main_ui;
 use main_ui::{CardSlot, CardSlotType, GameUIController, GameUIPlugin};
 

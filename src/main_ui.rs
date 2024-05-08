@@ -1,6 +1,5 @@
 use crate::card::{Card, CardAssetPlugin};
 use bevy::asset::LoadedFolder;
-use bevy::ecs::query::{QueryData, WorldQuery};
 use bevy::prelude::*;
 use bevy_rand::prelude::WyRand;
 use bevy_rand::resource::GlobalEntropy;
@@ -9,19 +8,21 @@ use std::collections::BTreeMap;
 
 const CARD_SLOT_COUNT: usize = 8;
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Reflect)]
+#[repr(u32)]
 pub enum Team {
     Red,
     Blue,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Reflect)]
+#[repr(u32)]
 pub enum CardSlotType {
     Hand,
     Play,
 }
 
-#[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect)]
 pub struct CardSlot {
     pub id: usize,
     pub team: Team,
@@ -102,21 +103,21 @@ fn spawn_slots_for_team<'a>(
                 width: Val::Percent(100.0),
                 height: Val::Percent(25.0),
                 justify_content: JustifyContent::SpaceBetween,
+                align_items: AlignItems::Center,
                 ..default()
             },
             background_color: BackgroundColor(*color),
             ..default()
         })
         .with_children(|parent| {
-            for id in 0..5 {
+            for id in 0..CARD_SLOT_COUNT {
                 parent
                     .spawn(ImageBundle {
                         style: Style {
-                            width: Val::Px(72.0 * 2.0),
-                            height: Val::Px(102.0 * 2.0),
+                            height: Val::Percent(100.0),
+                            aspect_ratio: Some(72.0 / 102.0),
                             ..default()
                         },
-                        background_color: BackgroundColor(Color::rgba(0.0, 0.0, 0.0, 0.0)),
                         ..default()
                     })
                     .insert(CardSlot {
@@ -137,11 +138,11 @@ pub struct GameUIController {
 
 impl GameUIController {
     pub fn new(cards: &Res<Assets<Card>>) -> Self {
-        let mut map: BTreeMap<CardSlot, Option<AssetId<Card>>> = BTreeMap::new();
+        let mut card_names: BTreeMap<CardSlot, Option<AssetId<Card>>> = BTreeMap::new();
         for team in [Team::Blue, Team::Red] {
             for slot_type in [CardSlotType::Hand, CardSlotType::Play] {
                 for slot_id in 0..CARD_SLOT_COUNT {
-                    map.insert(
+                    card_names.insert(
                         CardSlot {
                             id: slot_id,
                             slot_type: slot_type,
@@ -152,13 +153,14 @@ impl GameUIController {
                 }
             }
         }
+        let valid_new_cards = cards
+            .iter()
+            .filter(|(_id, card)| -> bool { card.colors.len() < 3 })
+            .map(|x| -> AssetId<Card> { x.0 })
+            .collect();
         GameUIController {
-            card_names: map,
-            valid_new_cards: cards
-                .iter()
-                .filter(|(_id, card)| -> bool { card.colors.len() < 3 })
-                .map(|x| -> AssetId<Card> { x.0 })
-                .collect(),
+            card_names,
+            valid_new_cards,
             set_card_actions: vec![],
         }
     }
@@ -220,7 +222,7 @@ fn load_cards(mut commands: Commands, asset_server: Res<AssetServer>) {
 fn spawn_game_ui_controller(mut commands: Commands, cards: Res<Assets<Card>>) {
     commands.spawn(GameUIController::new(&cards));
 }
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, States)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, States, Reflect)]
 pub enum GameState {
     #[default]
     DrawCards,
@@ -228,7 +230,7 @@ pub enum GameState {
     ApplyMoves,
 }
 
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, States)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, States, Reflect)]
 pub enum LoadState {
     #[default]
     Unloaded,
@@ -261,6 +263,9 @@ impl Plugin for GameUIPlugin {
                 OnEnter(LoadState::Loaded),
                 (setup_game_ui, spawn_game_ui_controller),
             )
-            .add_systems(Update, set_cards);
+            .add_systems(Update, set_cards)
+            .register_type::<CardSlot>()
+            .register_type::<CardSlotType>()
+            .register_type::<Team>();
     }
 }
