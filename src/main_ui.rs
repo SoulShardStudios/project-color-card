@@ -1,6 +1,7 @@
-use crate::card::{Card, CardAssetPlugin};
+use crate::cards::{Card, CardAssetPlugin, CardBack, CardBackAssetPlugin, CardBackType};
 use bevy::asset::LoadedFolder;
 use bevy::prelude::*;
+use bevy::render::texture;
 use bevy_rand::prelude::WyRand;
 use bevy_rand::resource::GlobalEntropy;
 use rand::Rng;
@@ -29,7 +30,13 @@ pub struct CardSlot {
     pub slot_type: CardSlotType,
 }
 
-pub fn setup_game_ui(mut commands: Commands) {
+#[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect)]
+pub struct CardDeckMarker;
+
+#[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect)]
+pub struct DiscardMarker;
+
+pub fn setup_game_ui(mut commands: Commands, card_backs: Res<Assets<CardBack>>) {
     commands
         .spawn(NodeBundle {
             style: Style {
@@ -41,15 +48,61 @@ pub fn setup_game_ui(mut commands: Commands) {
             ..default()
         })
         .with_children(|parent| {
-            parent.spawn(NodeBundle {
-                style: Style {
-                    width: Val::Percent(10.0),
-                    height: Val::Percent(100.0),
-                    justify_content: JustifyContent::SpaceBetween,
+            parent
+                .spawn(NodeBundle {
+                    style: Style {
+                        width: Val::Percent(10.0),
+                        height: Val::Percent(100.0),
+                        justify_content: JustifyContent::SpaceBetween,
+                        ..default()
+                    },
                     ..default()
-                },
-                ..default()
-            });
+                })
+                .with_children(|parent| {
+                    parent
+                        .spawn(ButtonBundle {
+                            style: Style {
+                                height: Val::Percent(100.0),
+                                aspect_ratio: Some(72.0 / 102.0),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                ..default()
+                            },
+                            ..default()
+                        })
+                        .with_children(|parent| {
+                            parent.spawn(ImageBundle {
+                                style: Style {
+                                    height: Val::Percent(100.0),
+                                    aspect_ratio: Some(72.0 / 102.0),
+                                    ..default()
+                                },
+                                ..default()
+                            });
+                        })
+                        .insert(CardDeckMarker);
+                    parent
+                        .spawn(ImageBundle {
+                            style: Style {
+                                height: Val::Percent(100.0),
+                                aspect_ratio: Some(72.0 / 102.0),
+                                ..default()
+                            },
+                            image: UiImage {
+                                texture: card_backs
+                                    .iter()
+                                    .filter(|(id, back)| back.card_type == CardBackType::Discard)
+                                    .nth(0)
+                                    .unwrap()
+                                    .1
+                                    .image_handle
+                                    .clone(),
+                                ..default()
+                            },
+                            ..default()
+                        })
+                        .insert(DiscardMarker);
+                });
 
             parent
                 .spawn(NodeBundle {
@@ -91,6 +144,8 @@ pub fn setup_game_ui(mut commands: Commands) {
         });
 }
 
+fn card_deck() {}
+
 fn spawn_slots_for_team<'a>(
     parent: &mut ChildBuilder<'a>,
     team: Team,
@@ -131,7 +186,7 @@ fn spawn_slots_for_team<'a>(
 
 #[derive(Component)]
 pub struct GameUIController {
-    card_names: BTreeMap<CardSlot, Option<AssetId<Card>>>,
+    current_cards: BTreeMap<CardSlot, Option<AssetId<Card>>>,
     valid_new_cards: Vec<AssetId<Card>>,
     set_card_actions: Vec<(CardSlot, AssetId<Card>)>,
 }
@@ -159,13 +214,13 @@ impl GameUIController {
             .map(|x| -> AssetId<Card> { x.0 })
             .collect();
         GameUIController {
-            card_names,
+            current_cards: card_names,
             valid_new_cards,
             set_card_actions: vec![],
         }
     }
     pub fn get_card_id(&self, slot: &CardSlot) -> Option<AssetId<Card>> {
-        self.card_names[slot].clone()
+        self.current_cards[slot].clone()
     }
     pub fn set_card<'a>(&mut self, slot: &'a CardSlot, card: AssetId<Card>) {
         self.set_card_actions.push((slot.clone(), card));
@@ -203,9 +258,9 @@ fn set_cards(
             .unwrap()
             .1
             .texture = card_asset.image_handle.clone();
-        game_ui_controller.card_names.remove(&slot);
+        game_ui_controller.current_cards.remove(&slot);
         game_ui_controller
-            .card_names
+            .current_cards
             .insert(slot.clone(), Some(card));
     }
     game_ui_controller.set_card_actions.clear();
@@ -214,10 +269,16 @@ fn set_cards(
 pub struct GameUIPlugin;
 
 #[derive(Resource, Default, Reflect)]
-struct Cards(Handle<LoadedFolder>);
+struct Cards {
+    cards: Handle<LoadedFolder>,
+    card_backs: Handle<LoadedFolder>,
+}
 
 fn load_cards(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.insert_resource(Cards(asset_server.load_folder("cards")));
+    commands.insert_resource(Cards {
+        card_backs: asset_server.load_folder("card_backs"),
+        cards: asset_server.load_folder("cards"),
+    });
 }
 fn spawn_game_ui_controller(mut commands: Commands, cards: Res<Assets<Card>>) {
     commands.spawn(GameUIController::new(&cards));
@@ -243,7 +304,7 @@ fn check_assets_folder_loaded(
     cards: Res<Cards>,
 ) {
     for event in events.read() {
-        if event.is_loaded_with_dependencies(cards.0.clone()) {
+        if event.is_loaded_with_dependencies(cards.cards.clone()) {
             next_state.set(LoadState::Loaded)
         }
     }
@@ -253,6 +314,7 @@ impl Plugin for GameUIPlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<GameState>()
             .add_plugins(CardAssetPlugin)
+            .add_plugins(CardBackAssetPlugin)
             .init_state::<LoadState>()
             .add_systems(OnEnter(LoadState::Unloaded), load_cards)
             .add_systems(

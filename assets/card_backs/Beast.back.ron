@@ -1,0 +1,4 @@
+CardBack (
+    card_type: CardType(Beast),
+    image: "card_backs/Beast_Back.png"
+)

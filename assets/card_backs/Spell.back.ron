@@ -1,0 +1,4 @@
+CardBack (
+    card_type: CardType(Spell),
+    image: "card_backs/Spell_Back.png"
+)
