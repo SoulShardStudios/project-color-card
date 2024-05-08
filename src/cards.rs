@@ -1,5 +1,3 @@
-use std::clone;
-
 use crate::create_ron_nested_asset_loader;
 use bevy::{
     asset::{io::Reader, AssetLoader, LoadContext},
