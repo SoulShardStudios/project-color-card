@@ -1,7 +1,6 @@
 use crate::cards::{Card, CardAssetPlugin, CardBack, CardBackAssetPlugin, CardBackType};
 use bevy::asset::LoadedFolder;
 use bevy::prelude::*;
-use bevy::render::texture;
 use bevy_rand::prelude::WyRand;
 use bevy_rand::resource::GlobalEntropy;
 use rand::Rng;
@@ -91,7 +90,7 @@ pub fn setup_game_ui(mut commands: Commands, card_backs: Res<Assets<CardBack>>) 
                             image: UiImage {
                                 texture: card_backs
                                     .iter()
-                                    .filter(|(id, back)| back.card_type == CardBackType::Discard)
+                                    .filter(|(_, back)| back.card_type == CardBackType::Discard)
                                     .nth(0)
                                     .unwrap()
                                     .1
@@ -143,8 +142,6 @@ pub fn setup_game_ui(mut commands: Commands, card_backs: Res<Assets<CardBack>>) 
                 });
         });
 }
-
-fn card_deck() {}
 
 fn spawn_slots_for_team<'a>(
     parent: &mut ChildBuilder<'a>,
