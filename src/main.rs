@@ -2,16 +2,15 @@ extern crate bevy;
 extern crate bevy_inspector_egui;
 extern crate bevy_rand;
 extern crate serde;
-use assets::{AssetLoaderPlugin, LoadState};
+use assets::AssetLoaderPlugin;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 mod cards;
 mod ron_asset_macro;
 use bevy_rand::prelude::{EntropyPlugin, WyRand};
-use bevy_rand::resource::GlobalEntropy;
 mod game;
-use game::{CardSlot, CardSlotType, GameUIController, GameUIPlugin};
+use game::GameUIPlugin;
 mod assets;
 #[macro_use]
 extern crate num_derive;
