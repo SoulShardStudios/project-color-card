@@ -7,6 +7,7 @@ use bevy::{
 };
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[repr(i32)]
 pub enum CardColor {
     Red,
     Yellow,
@@ -15,8 +16,25 @@ pub enum CardColor {
     Purple,
     Teal,
 }
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    Eq,
+    Clone,
+    Copy,
+    Default,
+    Hash,
+    States,
+    Reflect,
+    FromPrimitive,
+    ToPrimitive,
+)]
+#[repr(i32)]
 pub enum CardType {
+    #[default]
     Hero,
     Beast,
     Equipment,
