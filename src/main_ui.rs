@@ -145,13 +145,6 @@ fn spawn_card_piles<'a>(parent: &mut ChildBuilder<'a>, card_backs: &Res<Assets<C
         .nth(0)
         .map(|x| x.1.image_handle.clone())
         .unwrap_or(Handle::default());
-    println!(
-        "{:#?}",
-        card_backs
-            .iter()
-            .map(|x| x.1.card_type.clone())
-            .collect::<Vec<CardBackType>>()
-    );
     parent
         .spawn(ButtonBundle {
             style: Style {
