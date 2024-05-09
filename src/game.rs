@@ -2,14 +2,12 @@ use crate::assets::LoadState;
 use crate::cards::{Card, CardAssetPlugin, CardBack, CardBackAssetPlugin, CardBackType, CardType};
 use bevy::ecs::query::{QueryData, QueryFilter, QueryIter};
 use bevy::prelude::*;
-use bevy::utils::hashbrown::Equivalent;
 use bevy_rand::prelude::WyRand;
 use bevy_rand::resource::GlobalEntropy;
 use itertools::Itertools;
 use num_traits::FromPrimitive;
 use rand::Rng;
 use std::collections::BTreeMap;
-use std::default;
 
 trait Itertools2: Itertools {}
 
@@ -48,7 +46,19 @@ pub struct CardDeckMarker;
 #[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect)]
 pub struct DiscardMarker;
 
-pub fn setup_game_ui(mut commands: Commands, card_backs: Res<Assets<CardBack>>) {
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, States, Reflect)]
+pub enum TurnState {
+    #[default]
+    DrawCards,
+    PlayCards,
+    ApplyMoves,
+}
+
+pub fn setup_game_ui(
+    mut commands: Commands,
+    card_backs: Res<Assets<CardBack>>,
+    card_type_state: Res<State<NextTurnCardType>>,
+) {
     commands
         .spawn(NodeBundle {
             style: Style {
@@ -72,7 +82,7 @@ pub fn setup_game_ui(mut commands: Commands, card_backs: Res<Assets<CardBack>>) 
                     },
                     ..default()
                 })
-                .with_children(|parent| spawn_card_piles(parent, &card_backs));
+                .with_children(|parent| spawn_card_piles(parent, &card_backs, &card_type_state));
             parent
                 .spawn(NodeBundle {
                     style: Style {
@@ -151,18 +161,25 @@ fn spawn_slots_for_team<'a>(
         });
 }
 
-fn spawn_card_piles<'a>(parent: &mut ChildBuilder<'a>, card_backs: &Res<Assets<CardBack>>) {
-    let discard_back = card_backs
-        .iter()
-        .filter(|(_, back)| back.card_type == CardBackType::Discard)
-        .nth(0)
-        .map(|x| x.1.image_handle.clone())
-        .unwrap_or(Handle::default());
+fn spawn_card_piles<'a>(
+    parent: &mut ChildBuilder<'a>,
+    card_backs: &Res<Assets<CardBack>>,
+    card_type_state: &Res<State<NextTurnCardType>>,
+) {
+    let discard_back = get_card_back_image(card_backs, CardBackType::Discard);
+    let current_back = get_card_back_image(
+        card_backs,
+        CardBackType::CardType(card_type_state.get().0.clone()),
+    );
     parent
         .spawn(ButtonBundle {
             style: Style {
                 width: Val::Percent(100.0),
                 aspect_ratio: Some(72.0 / 102.0),
+                ..default()
+            },
+            image: UiImage {
+                texture: current_back,
                 ..default()
             },
             ..default()
@@ -185,6 +202,18 @@ fn spawn_card_piles<'a>(parent: &mut ChildBuilder<'a>, card_backs: &Res<Assets<C
         .insert(DiscardMarker);
 }
 
+fn get_card_back_image(
+    card_backs: &Res<Assets<CardBack>>,
+    back_type: CardBackType,
+) -> Handle<Image> {
+    return card_backs
+        .iter()
+        .filter(|(_, back)| back.card_type == back_type)
+        .nth(0)
+        .map(|x| x.1.image_handle.clone())
+        .unwrap_or(Handle::default());
+}
+
 pub fn draw_card(
     mut interaction_query: Query<&Interaction, (Changed<Interaction>, With<Button>)>,
     mut game_ui_controller: Query<&mut GameUIController>,
@@ -195,6 +224,8 @@ pub fn draw_card(
     current_turn_team: Res<State<CurrentTurnTeam>>,
     mut turn_state: ResMut<NextState<TurnState>>,
     current_turn_state: Res<State<TurnState>>,
+    mut draw_image_query: Query<&mut UiImage, With<CardDeckMarker>>,
+    card_backs: Res<Assets<CardBack>>,
 ) {
     if *current_turn_state.get() != TurnState::DrawCards {
         return;
@@ -213,9 +244,10 @@ pub fn draw_card(
                     current_turn_team.0,
                     random_card_of_type.unwrap(),
                 );
-                next_card_type_state.set(NextTurnCardType(
-                    CardType::from_i8(rng.gen_range(0..4)).unwrap(),
-                ));
+                let new_card_type = CardType::from_i8(rng.gen_range(0..4)).unwrap();
+                next_card_type_state.set(NextTurnCardType(new_card_type));
+                draw_image_query.iter_mut().nth(0).unwrap().texture =
+                    get_card_back_image(&card_backs, CardBackType::CardType(new_card_type));
                 turn_state.set(TurnState::PlayCards);
             }
             _ => {}
@@ -316,7 +348,6 @@ fn set_cards(
         }
         Some(x) => x,
     };
-    println!("{:#?}", game_ui_controller.push_card_actions.clone());
     for (team, slot_type, card) in game_ui_controller.push_card_actions.clone() {
         let card_asset = cards.get(card).unwrap();
         for (slot, mut ui) in query
@@ -391,13 +422,6 @@ pub struct GameUIPlugin;
 
 fn spawn_game_ui_controller(mut commands: Commands, cards: Res<Assets<Card>>) {
     commands.spawn(GameUIController::new(&cards));
-}
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, States, Reflect)]
-pub enum TurnState {
-    #[default]
-    DrawCards,
-    PlayCards,
-    ApplyMoves,
 }
 
 impl Plugin for GameUIPlugin {
