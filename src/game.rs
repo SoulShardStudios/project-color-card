@@ -330,6 +330,7 @@ fn play_card(
                             cursor_card,
                             Some(slot.id),
                         );
+                        custom_cursor.set_default()
                     }
                     _ => {}
                 }
