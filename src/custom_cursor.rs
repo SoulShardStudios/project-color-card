@@ -15,11 +15,6 @@ pub struct CustomCursor {
 }
 
 impl CustomCursor {
-    pub fn new() -> Self {
-        Self {
-            current_cursor: CustomCursorData::Default,
-        }
-    }
     pub fn set_default(&mut self) {
         self.current_cursor = CustomCursorData::Default;
     }
