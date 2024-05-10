@@ -1,7 +1,0 @@
-Card(
-    name: "ostrich",
-    colors: [Yellow, Purple, Teal],
-    card_type: Beast,
-    text: "",
-    image: "cards/ostrich.png"
-)

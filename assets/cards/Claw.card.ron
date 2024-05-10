@@ -3,5 +3,7 @@ Card(
     colors: [Red, Yellow],
     card_type: Equipment,
     text: "",
-    image: "cards/Claw.png"
+    image: "cards/Claw.png",
+    damage: None,
+    hp: None,
 )
