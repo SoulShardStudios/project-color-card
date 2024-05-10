@@ -1,7 +1,7 @@
 use crate::assets::LoadState;
 use crate::cards::{Card, CardType};
 use crate::constants::CARD_SLOT_COUNT;
-use crate::game_state::{CardHealth, CardSlot, CardSlotType, Team};
+use crate::game_state::{CardSlot, CardSlotType, CardStats, Team};
 use crate::spawn_ui::spawn_game_ui;
 use bevy::prelude::*;
 use bevy_rand::prelude::WyRand;
@@ -122,11 +122,11 @@ fn set_cards(
     cards: Res<Assets<Card>>,
     mut query: Query<(&CardSlot, &mut UiImage)>,
 ) {
-    let mut game_ui_controller = match game_ui_controller_query.iter_mut().nth(0) {
-        None => {
+    let mut game_ui_controller = match game_ui_controller_query.get_single_mut() {
+        Ok(x) => x,
+        _ => {
             return;
         }
-        Some(x) => x,
     };
     for (team, slot_type, card, id) in game_ui_controller.push_card_actions.clone() {
         let card_asset = cards.get(card).unwrap();
@@ -192,7 +192,7 @@ fn set_cards(
 }
 
 fn damage_cards(
-    mut query: Query<(&CardSlot, &mut CardHealth)>,
+    mut query: Query<(&CardSlot, &mut CardStats)>,
     game_ui_controller_query: Query<&GameUIController>,
 ) {
     let game_ui_controller = match game_ui_controller_query.iter().nth(0) {
@@ -213,11 +213,11 @@ fn take_cards(
     mut game_ui_controller_query: Query<&mut GameUIController>,
     mut query: Query<(&CardSlot, &mut UiImage)>,
 ) {
-    let mut game_ui_controller = match game_ui_controller_query.iter_mut().nth(0) {
-        None => {
+    let mut game_ui_controller = match game_ui_controller_query.get_single_mut() {
+        Ok(x) => x,
+        _ => {
             return;
         }
-        Some(x) => x,
     };
     // apply take actions
     for slot in game_ui_controller.take_card_actions.clone() {
