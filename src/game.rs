@@ -693,12 +693,7 @@ impl Plugin for GameUIPlugin {
                     draw_card,
                     play_card,
                     apply_moves,
-                    debug_state,
                 ),
             );
     }
-}
-
-fn debug_state(team_state: Res<State<CurrentTurnTeam>>, turn_state: Res<State<TurnState>>) {
-    println!("{:#?}{:#?}", team_state.get(), turn_state.get());
 }
