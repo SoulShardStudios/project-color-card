@@ -42,7 +42,7 @@ pub struct CardSlot {
 }
 
 #[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect, Debug)]
-pub struct CardHealth {
+pub struct CardStats {
     pub hp: u32,
 }
 
