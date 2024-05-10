@@ -2,6 +2,7 @@ use crate::assets::LoadState;
 use crate::cards::{Card, CardAssetPlugin, CardBack, CardBackAssetPlugin, CardBackType, CardType};
 use bevy::ecs::query::{QueryData, QueryFilter, QueryIter};
 use bevy::prelude::*;
+use bevy::window::WindowResolution;
 use bevy_rand::prelude::WyRand;
 use bevy_rand::resource::GlobalEntropy;
 use itertools::Itertools;
@@ -54,7 +55,7 @@ pub enum TurnState {
     ApplyMoves,
 }
 
-pub fn setup_game_ui(
+pub fn spawn_game_ui(
     mut commands: Commands,
     card_backs: Res<Assets<CardBack>>,
     card_type_state: Res<State<NextTurnCardType>>,
@@ -190,7 +191,6 @@ fn spawn_card_piles<'a>(
             style: Style {
                 width: Val::Percent(100.0),
                 aspect_ratio: Some(72.0 / 102.0),
-
                 ..default()
             },
             image: UiImage {
@@ -249,6 +249,42 @@ pub fn draw_card(
                 draw_image_query.iter_mut().nth(0).unwrap().texture =
                     get_card_back_image(&card_backs, CardBackType::CardType(new_card_type));
                 turn_state.set(TurnState::PlayCards);
+            }
+            _ => {}
+        }
+    }
+}
+
+#[derive(Component)]
+struct CursorMarker;
+
+fn spawn_held_card(mut commands: Commands, mut window: Query<&mut Window>) {
+    match window.get_single_mut() {
+        Ok(mut x) => x.cursor.visible = false,
+        _ => {}
+    }
+    commands
+        .spawn(ImageBundle {
+            style: Style {
+                width: Val::Px(72.0),
+                aspect_ratio: Some(72.0 / 102.0),
+                ..default()
+            },
+            ..default()
+        })
+        .insert(CursorMarker);
+}
+
+fn move_held_card(
+    mut cursor_evr: EventReader<CursorMoved>,
+    mut cursor_query: Query<&mut Style, With<CursorMarker>>,
+    window: Query<&Window>,
+) {
+    for ev in cursor_evr.read() {
+        match (cursor_query.get_single_mut(), window.get_single()) {
+            (Ok(mut cursor), Ok(window)) => {
+                cursor.left = Val::Px(ev.position.x);
+                cursor.top = Val::Px(ev.position.y);
             }
             _ => {}
         }
@@ -436,8 +472,8 @@ impl Plugin for GameUIPlugin {
             .add_plugins(CardBackAssetPlugin)
             .add_systems(
                 OnEnter(LoadState::Loaded),
-                (setup_game_ui, spawn_game_ui_controller),
+                (spawn_held_card, spawn_game_ui_controller, spawn_game_ui),
             )
-            .add_systems(Update, (set_cards, take_cards, draw_card));
+            .add_systems(Update, (set_cards, take_cards, draw_card, move_held_card));
     }
 }
