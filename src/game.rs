@@ -271,10 +271,21 @@ pub fn draw_card(
                     random_card_of_type.unwrap(),
                     None,
                 );
-                let new_card_type = CardType::from_i8(rng.gen_range(0..4)).unwrap();
+                // TODO: RE ENABLE WHEN ALL CARD TYPES AE PRESENT: CardType::from_i8(rng.gen_range(0..4)).unwrap();
+                let new_card_type = match rng.gen_range(0..2) {
+                    0 => CardType::Beast,
+                    1 => CardType::Equipment,
+                    2 => CardType::Hero,
+                    _ => panic!("non exhaustive my ass"),
+                };
                 card_type_state.set(NextTurnCardType(new_card_type));
-                draw_image_query.iter_mut().nth(0).unwrap().texture =
-                    get_card_back_image(&card_backs, CardBackType::CardType(new_card_type));
+                match draw_image_query.get_single_mut() {
+                    Ok(mut x) => {
+                        x.texture =
+                            get_card_back_image(&card_backs, CardBackType::CardType(new_card_type))
+                    }
+                    _ => {}
+                }
                 turn_state.set(TurnState::PlayCards);
             }
             _ => {}
@@ -565,12 +576,18 @@ fn set_cards(
                     .iter()
                     .map(|x| x.0)
                     .find(|x| game_ui_controller.get_card_id(x).is_none());
-                if slot_id > first_empty_slot.unwrap().id {
-                    slot_id = first_empty_slot.unwrap().id;
+                let first_empty_slot_id = match first_empty_slot {
+                    Some(x) => x.id,
+                    None => {
+                        return;
+                    }
+                };
+                if slot_id > first_empty_slot_id {
+                    slot_id = first_empty_slot_id;
                 }
 
                 for (slot, mut ui) in slots_and_ui.into_iter().rev() {
-                    if slot.id > first_empty_slot.unwrap().id {
+                    if slot.id > first_empty_slot_id {
                         continue;
                     }
                     if slot.id == slot_id {
@@ -600,13 +617,10 @@ fn damage_cards(
         Some(x) => x,
     };
     for (slot, damage) in game_ui_controller.damage_card_actions.iter() {
-        query
-            .iter_mut()
-            .filter(|(query_slot, _)| **query_slot == *slot)
-            .nth(0)
-            .unwrap()
-            .1
-            .hp -= damage;
+        match query.iter_mut().filter(|(x, _)| **x == *slot).nth(0) {
+            Some(mut x) => x.1.hp -= damage,
+            _ => {}
+        }
     }
 }
 
@@ -622,13 +636,10 @@ fn take_cards(
     };
     // apply take actions
     for slot in game_ui_controller.take_card_actions.clone() {
-        query
-            .iter_mut()
-            .filter(|(x, _)| **x == slot)
-            .nth(0)
-            .unwrap()
-            .1
-            .texture = Handle::default();
+        match query.iter_mut().filter(|(x, _)| **x == slot).nth(0) {
+            Some(mut x) => x.1.texture = Handle::default(),
+            _ => {}
+        }
         game_ui_controller.current_cards.remove(&slot);
         game_ui_controller.current_cards.insert(slot.clone(), None);
         // reset the stack
