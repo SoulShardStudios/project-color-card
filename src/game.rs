@@ -9,6 +9,7 @@ use itertools::Itertools;
 use num_traits::FromPrimitive;
 use rand::Rng;
 use std::collections::BTreeMap;
+use std::ops::Not;
 
 trait Itertools2: Itertools {}
 
@@ -23,9 +24,21 @@ pub enum Team {
     Red,
     Blue,
 }
+impl Not for Team {
+    type Output = Self;
+    fn not(self) -> Self::Output {
+        match self {
+            Self::Blue => Self::Red,
+            Self::Red => Self::Blue,
+        }
+    }
+}
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Reflect, States, Default, Debug, Hash)]
 pub struct CurrentTurnTeam(Team);
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Default, Hash, States, Reflect)]
+pub struct NextTurnCardType(CardType);
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Reflect, Debug)]
 #[repr(u32)]
@@ -39,6 +52,11 @@ pub struct CardSlot {
     pub id: usize,
     pub team: Team,
     pub slot_type: CardSlotType,
+}
+
+#[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect, Debug)]
+pub struct CardHealth {
+    pub hp: u32,
 }
 
 #[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect)]
@@ -273,7 +291,6 @@ fn play_card(
     >,
     current_turn_state: Res<State<TurnState>>,
     mut turn_state: ResMut<NextState<TurnState>>,
-
     current_turn_team: Res<State<CurrentTurnTeam>>,
 ) {
     if *current_turn_state.get() != TurnState::PlayCards {
@@ -330,7 +347,8 @@ fn play_card(
                             cursor_card,
                             Some(slot.id),
                         );
-                        custom_cursor.set_default()
+                        custom_cursor.set_default();
+                        turn_state.set(TurnState::ApplyMoves);
                     }
                     _ => {}
                 }
@@ -339,15 +357,70 @@ fn play_card(
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Default, Hash, States, Reflect)]
-pub struct NextTurnCardType(CardType);
+fn apply_moves(
+    current_turn_state: Res<State<TurnState>>,
+    card_slot_query: Query<&CardSlot>,
+    current_turn_team: Res<State<CurrentTurnTeam>>,
+    mut game_ui_controller_query: Query<&mut GameUIController>,
+    cards: Res<Assets<Card>>,
+    mut team_state: ResMut<NextState<CurrentTurnTeam>>,
+    mut turn_state: ResMut<NextState<TurnState>>,
+) {
+    let mut game_ui_controller = match game_ui_controller_query.get_single_mut() {
+        Ok(x) => x,
+        _ => {
+            return;
+        }
+    };
+    if *current_turn_state.get() != TurnState::ApplyMoves {
+        return;
+    }
+    for (current_slot, foe_slot) in card_slot_query
+        .iter()
+        .filter(|slot| {
+            slot.team == current_turn_team.get().0 && slot.slot_type == CardSlotType::Play
+        })
+        .zip(card_slot_query.iter().filter(|slot| {
+            slot.team == !current_turn_team.get().0 && slot.slot_type == CardSlotType::Play
+        }))
+    {
+        let foe_card = game_ui_controller
+            .get_card_id(current_slot)
+            .map(|x| cards.get(x).unwrap());
+        let current_card = game_ui_controller
+            .get_card_id(foe_slot)
+            .map(|x| cards.get(x).unwrap());
+        match (current_card, foe_card) {
+            (Some(current), Some(_)) => {
+                game_ui_controller.damage_card(foe_slot, current.damage.unwrap_or(0))
+            }
+            (None, Some(foe)) => {
+                *game_ui_controller
+                    .team_health
+                    .get_mut(&current_turn_team.get().0)
+                    .unwrap() -= foe.damage.unwrap_or(0)
+            }
+            (Some(current), None) => {
+                *game_ui_controller
+                    .team_health
+                    .get_mut(&!current_turn_team.get().0)
+                    .unwrap() -= current.damage.unwrap_or(0)
+            }
+            _ => {}
+        }
+    }
+    team_state.set(CurrentTurnTeam(!current_turn_team.get().0));
+    turn_state.set(TurnState::DrawCards);
+}
 
 #[derive(Component)]
 pub struct GameUIController {
+    pub team_health: BTreeMap<Team, u32>,
     current_cards: BTreeMap<CardSlot, Option<AssetId<Card>>>,
     valid_new_cards: Vec<AssetId<Card>>,
     push_card_actions: Vec<(Team, CardSlotType, AssetId<Card>, Option<usize>)>,
     take_card_actions: Vec<CardSlot>,
+    damage_card_actions: Vec<(CardSlot, u32)>,
 }
 
 impl GameUIController {
@@ -373,12 +446,15 @@ impl GameUIController {
             .map(|x| -> AssetId<Card> { x.0 })
             .collect();
         GameUIController {
+            team_health: BTreeMap::from_iter([(Team::Red, 100), (Team::Blue, 100)]),
             current_cards: card_names,
             valid_new_cards,
             push_card_actions: vec![],
             take_card_actions: vec![],
+            damage_card_actions: vec![],
         }
     }
+
     pub fn card_stack_full(&self, team: Team, slot_type: CardSlotType) -> bool {
         for slot in (0..CARD_SLOT_COUNT).into_iter().map(|id| CardSlot {
             team: team,
@@ -409,6 +485,10 @@ impl GameUIController {
 
     pub fn take_card(&mut self, slot: &CardSlot) {
         self.take_card_actions.push(slot.clone());
+    }
+
+    pub fn damage_card(&mut self, slot: &CardSlot, damage: u32) {
+        self.damage_card_actions.push((slot.clone(), damage));
     }
 
     pub fn get_random_card(
@@ -509,6 +589,27 @@ fn set_cards(
     game_ui_controller.push_card_actions.clear();
 }
 
+fn damage_cards(
+    mut query: Query<(&CardSlot, &mut CardHealth)>,
+    mut game_ui_controller_query: Query<&mut GameUIController>,
+) {
+    let mut game_ui_controller = match game_ui_controller_query.iter_mut().nth(0) {
+        None => {
+            return;
+        }
+        Some(x) => x,
+    };
+    for (slot, damage) in game_ui_controller.damage_card_actions.iter() {
+        query
+            .iter_mut()
+            .filter(|(query_slot, _)| **query_slot == *slot)
+            .nth(0)
+            .unwrap()
+            .1
+            .hp -= damage;
+    }
+}
+
 fn take_cards(
     mut game_ui_controller_query: Query<&mut GameUIController>,
     mut query: Query<(&CardSlot, &mut UiImage)>,
@@ -583,6 +684,21 @@ impl Plugin for GameUIPlugin {
                 OnEnter(LoadState::Loaded),
                 (spawn_game_ui_controller, spawn_game_ui),
             )
-            .add_systems(Update, (set_cards, take_cards, draw_card, play_card));
+            .add_systems(
+                Update,
+                (
+                    set_cards,
+                    take_cards,
+                    damage_cards,
+                    draw_card,
+                    play_card,
+                    apply_moves,
+                    debug_state,
+                ),
+            );
     }
+}
+
+fn debug_state(team_state: Res<State<CurrentTurnTeam>>, turn_state: Res<State<TurnState>>) {
+    println!("{:#?}{:#?}", team_state.get(), turn_state.get());
 }

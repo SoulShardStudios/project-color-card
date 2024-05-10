@@ -51,6 +51,8 @@ pub struct Card {
     image: String,
     #[serde(skip)]
     pub image_handle: Handle<Image>,
+    pub damage: Option<u32>,
+    pub hp: Option<u32>,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
