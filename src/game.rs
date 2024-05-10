@@ -1,8 +1,8 @@
 use crate::assets::LoadState;
 use crate::cards::{Card, CardAssetPlugin, CardBack, CardBackAssetPlugin, CardBackType, CardType};
+use crate::custom_cursor::{CustomCursor, CustomCursorPlugin};
 use bevy::ecs::query::{QueryData, QueryFilter, QueryIter};
 use bevy::prelude::*;
-use bevy::window::WindowResolution;
 use bevy_rand::prelude::WyRand;
 use bevy_rand::resource::GlobalEntropy;
 use itertools::Itertools;
@@ -34,7 +34,7 @@ pub enum CardSlotType {
     Play,
 }
 
-#[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect)]
+#[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect, Debug)]
 pub struct CardSlot {
     pub id: usize,
     pub team: Team,
@@ -145,7 +145,7 @@ fn spawn_slots_for_team<'a>(
         .with_children(|parent| {
             for id in 0..CARD_SLOT_COUNT {
                 parent
-                    .spawn(ImageBundle {
+                    .spawn(ButtonBundle {
                         style: Style {
                             height: Val::Percent(100.0),
                             aspect_ratio: Some(72.0 / 102.0),
@@ -215,12 +215,15 @@ fn get_card_back_image(
 }
 
 pub fn draw_card(
-    mut interaction_query: Query<&Interaction, (Changed<Interaction>, With<Button>)>,
-    mut game_ui_controller: Query<&mut GameUIController>,
+    mut interaction_query: Query<
+        &Interaction,
+        (Changed<Interaction>, With<Button>, With<CardDeckMarker>),
+    >,
+    mut game_ui_controller_query: Query<&mut GameUIController>,
     mut rng: ResMut<GlobalEntropy<WyRand>>,
     cards: Res<Assets<Card>>,
-    mut next_card_type_state: ResMut<NextState<NextTurnCardType>>,
-    card_type_state: Res<State<NextTurnCardType>>,
+    current_card_type_state: Res<State<NextTurnCardType>>,
+    mut card_type_state: ResMut<NextState<NextTurnCardType>>,
     current_turn_team: Res<State<CurrentTurnTeam>>,
     mut turn_state: ResMut<NextState<TurnState>>,
     current_turn_state: Res<State<TurnState>>,
@@ -230,22 +233,28 @@ pub fn draw_card(
     if *current_turn_state.get() != TurnState::DrawCards {
         return;
     }
+    let mut game_ui_controller = match game_ui_controller_query.get_single_mut() {
+        Ok(x) => x,
+        _ => {
+            return;
+        }
+    };
     for interaction in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                let mut controller = game_ui_controller.iter_mut().nth(0).unwrap();
-                let random_card_of_type = controller.get_random_card_of_type(
+                let random_card_of_type = game_ui_controller.get_random_card_of_type(
                     &mut rng,
                     &cards,
-                    card_type_state.get().0.clone(),
+                    current_card_type_state.get().0.clone(),
                 );
-                controller.push_card(
+                game_ui_controller.push_card_at(
                     CardSlotType::Hand,
                     current_turn_team.0,
                     random_card_of_type.unwrap(),
+                    None,
                 );
                 let new_card_type = CardType::from_i8(rng.gen_range(0..4)).unwrap();
-                next_card_type_state.set(NextTurnCardType(new_card_type));
+                card_type_state.set(NextTurnCardType(new_card_type));
                 draw_image_query.iter_mut().nth(0).unwrap().texture =
                     get_card_back_image(&card_backs, CardBackType::CardType(new_card_type));
                 turn_state.set(TurnState::PlayCards);
@@ -255,38 +264,76 @@ pub fn draw_card(
     }
 }
 
-#[derive(Component)]
-struct CursorMarker;
+fn play_card(
+    mut game_ui_controller_query: Query<&mut GameUIController>,
+    mut custom_cursor_query: Query<&mut CustomCursor>,
+    mut interaction_query: Query<
+        (&Interaction, &CardSlot),
+        (Changed<Interaction>, With<Button>, With<CardSlot>),
+    >,
+    current_turn_state: Res<State<TurnState>>,
+    mut turn_state: ResMut<NextState<TurnState>>,
 
-fn spawn_held_card(mut commands: Commands, mut window: Query<&mut Window>) {
-    match window.get_single_mut() {
-        Ok(mut x) => x.cursor.visible = false,
-        _ => {}
-    }
-    commands
-        .spawn(ImageBundle {
-            style: Style {
-                width: Val::Px(72.0),
-                aspect_ratio: Some(72.0 / 102.0),
-                ..default()
-            },
-            ..default()
-        })
-        .insert(CursorMarker);
-}
-
-fn move_held_card(
-    mut cursor_evr: EventReader<CursorMoved>,
-    mut cursor_query: Query<&mut Style, With<CursorMarker>>,
-    window: Query<&Window>,
+    current_turn_team: Res<State<CurrentTurnTeam>>,
 ) {
-    for ev in cursor_evr.read() {
-        match (cursor_query.get_single_mut(), window.get_single()) {
-            (Ok(mut cursor), Ok(window)) => {
-                cursor.left = Val::Px(ev.position.x);
-                cursor.top = Val::Px(ev.position.y);
+    if *current_turn_state.get() != TurnState::PlayCards {
+        return;
+    }
+    let mut game_ui_controller = match game_ui_controller_query.get_single_mut() {
+        Ok(x) => x,
+        _ => {
+            return;
+        }
+    };
+    if game_ui_controller.card_stack_full(current_turn_team.get().0, CardSlotType::Play) {
+        turn_state.set(TurnState::ApplyMoves);
+        return;
+    }
+    let mut custom_cursor = match custom_cursor_query.get_single_mut() {
+        Ok(x) => x,
+        _ => {
+            return;
+        }
+    };
+    match custom_cursor.get_current_card() {
+        // pick up card and set custom cursor
+        None => {
+            for (interaction, slot) in &mut interaction_query {
+                if !(slot.team == current_turn_team.get().0 && slot.slot_type == CardSlotType::Hand)
+                {
+                    continue;
+                }
+                match *interaction {
+                    Interaction::Pressed => match game_ui_controller.get_card_id(slot) {
+                        Some(card) => {
+                            custom_cursor.set_card(card);
+                            game_ui_controller.take_card(slot);
+                        }
+                        _ => {}
+                    },
+                    _ => {}
+                }
             }
-            _ => {}
+        }
+        // place custom cursor down in play and adjust slots
+        Some(cursor_card) => {
+            for (interaction, slot) in &mut interaction_query {
+                if !(slot.team == current_turn_team.get().0 && slot.slot_type == CardSlotType::Play)
+                {
+                    continue;
+                }
+                match *interaction {
+                    Interaction::Pressed => {
+                        game_ui_controller.push_card_at(
+                            slot.slot_type,
+                            slot.team,
+                            cursor_card,
+                            Some(slot.id),
+                        );
+                    }
+                    _ => {}
+                }
+            }
         }
     }
 }
@@ -298,7 +345,7 @@ pub struct NextTurnCardType(CardType);
 pub struct GameUIController {
     current_cards: BTreeMap<CardSlot, Option<AssetId<Card>>>,
     valid_new_cards: Vec<AssetId<Card>>,
-    push_card_actions: Vec<(Team, CardSlotType, AssetId<Card>)>,
+    push_card_actions: Vec<(Team, CardSlotType, AssetId<Card>, Option<usize>)>,
     take_card_actions: Vec<CardSlot>,
 }
 
@@ -331,12 +378,33 @@ impl GameUIController {
             take_card_actions: vec![],
         }
     }
+    pub fn card_stack_full(&self, team: Team, slot_type: CardSlotType) -> bool {
+        for slot in (0..CARD_SLOT_COUNT).into_iter().map(|id| CardSlot {
+            team: team,
+            slot_type: slot_type,
+            id: id,
+        }) {
+            if self.get_card_id(&slot).is_none() {
+                return false;
+            }
+        }
+        return true;
+    }
+
     pub fn get_card_id(&self, slot: &CardSlot) -> Option<AssetId<Card>> {
+        println!("{:#?}", slot);
         self.current_cards[slot].clone()
     }
 
-    pub fn push_card<'a>(&mut self, slot_type: CardSlotType, team: Team, card: AssetId<Card>) {
-        self.push_card_actions.push((team, slot_type, card));
+    pub fn push_card_at<'a>(
+        &mut self,
+        slot_type: CardSlotType,
+        team: Team,
+        card: AssetId<Card>,
+        slot_id: Option<usize>,
+    ) {
+        self.push_card_actions
+            .push((team, slot_type, card, slot_id));
     }
 
     pub fn take_card(&mut self, slot: &CardSlot) {
@@ -384,21 +452,56 @@ fn set_cards(
         }
         Some(x) => x,
     };
-    for (team, slot_type, card) in game_ui_controller.push_card_actions.clone() {
+    for (team, slot_type, card, id) in game_ui_controller.push_card_actions.clone() {
         let card_asset = cards.get(card).unwrap();
-        for (slot, mut ui) in query
+
+        let textures: Vec<_> = query
+            .iter()
+            .map(|(_, image)| image.texture.clone())
+            .collect();
+        let slots_and_ui: Vec<_> = query
             .iter_mut()
             .filter(|(x, _)| x.team == team && x.slot_type == slot_type)
-        {
-            if game_ui_controller.get_card_id(slot).is_some() {
-                continue;
+            .collect();
+
+        match id {
+            None => {
+                for (slot, mut ui) in slots_and_ui {
+                    if game_ui_controller.get_card_id(slot).is_some() {
+                        // should we shift the stack?
+
+                        continue;
+                    }
+                    ui.texture = card_asset.image_handle.clone();
+                    game_ui_controller.current_cards.remove(&slot);
+                    game_ui_controller
+                        .current_cards
+                        .insert(slot.clone(), Some(card));
+                    break;
+                }
             }
-            ui.texture = card_asset.image_handle.clone();
-            game_ui_controller.current_cards.remove(&slot);
-            game_ui_controller
-                .current_cards
-                .insert(slot.clone(), Some(card));
-            break;
+            Some(slot_id) => {
+                let first_empty_slot = slots_and_ui
+                    .iter()
+                    .map(|x| x.0)
+                    .skip(slot_id)
+                    .find(|x| game_ui_controller.get_card_id(x).is_none());
+
+                for (slot, mut ui) in slots_and_ui.into_iter().rev() {
+                    if slot.id > first_empty_slot.unwrap().id {
+                        continue;
+                    }
+                    if slot.id == slot_id {
+                        ui.texture = card_asset.image_handle.clone();
+                        game_ui_controller.current_cards.remove(&slot);
+                        game_ui_controller
+                            .current_cards
+                            .insert(slot.clone().clone(), Some(card));
+                        break;
+                    }
+                    ui.texture = textures[slot.id - 1].clone();
+                }
+            }
         }
     }
     game_ui_controller.push_card_actions.clear();
@@ -434,6 +537,9 @@ fn take_cards(
             .iter_mut()
             .filter(|(x, _)| x.team == slot.team && x.slot_type == slot.slot_type)
         {
+            if slot.id == 7 {
+                continue;
+            }
             if game_ui_controller.get_card_id(slot).is_some() {
                 continue;
             }
@@ -468,12 +574,13 @@ impl Plugin for GameUIPlugin {
             .init_state::<TurnState>()
             .init_state::<NextTurnCardType>()
             .init_state::<CurrentTurnTeam>()
+            .add_plugins(CustomCursorPlugin)
             .add_plugins(CardAssetPlugin)
             .add_plugins(CardBackAssetPlugin)
             .add_systems(
                 OnEnter(LoadState::Loaded),
-                (spawn_held_card, spawn_game_ui_controller, spawn_game_ui),
+                (spawn_game_ui_controller, spawn_game_ui),
             )
-            .add_systems(Update, (set_cards, take_cards, draw_card, move_held_card));
+            .add_systems(Update, (set_cards, take_cards, draw_card, play_card));
     }
 }

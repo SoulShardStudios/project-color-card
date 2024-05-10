@@ -12,6 +12,8 @@ use bevy_rand::prelude::{EntropyPlugin, WyRand};
 mod game;
 use game::GameUIPlugin;
 mod assets;
+mod custom_cursor;
+
 #[macro_use]
 extern crate num_derive;
 fn main() {
