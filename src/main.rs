@@ -12,7 +12,11 @@ use bevy_rand::prelude::{EntropyPlugin, WyRand};
 mod game;
 use game::GameUIPlugin;
 mod assets;
+mod constants;
 mod custom_cursor;
+mod game_state;
+mod game_ui_controller;
+mod spawn_ui;
 
 #[macro_use]
 extern crate num_derive;
