@@ -591,9 +591,9 @@ fn set_cards(
 
 fn damage_cards(
     mut query: Query<(&CardSlot, &mut CardHealth)>,
-    mut game_ui_controller_query: Query<&mut GameUIController>,
+    game_ui_controller_query: Query<&GameUIController>,
 ) {
-    let mut game_ui_controller = match game_ui_controller_query.iter_mut().nth(0) {
+    let game_ui_controller = match game_ui_controller_query.iter().nth(0) {
         None => {
             return;
         }
