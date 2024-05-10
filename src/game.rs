@@ -1,20 +1,16 @@
-use crate::assets::LoadState;
 use crate::cards::{
     get_card_back_image, Card, CardAssetPlugin, CardBack, CardBackAssetPlugin, CardBackType,
     CardType,
 };
 use crate::custom_cursor::{CustomCursor, CustomCursorPlugin};
 use crate::game_state::{
-    CardDeckMarker, CardHealth, CardSlot, CardSlotType, CurrentTurnTeam, DiscardMarker,
-    NextTurnCardType, Team, TurnState,
+    CardDeckMarker, CardSlot, CardSlotType, CurrentTurnTeam, NextTurnCardType, Team, TurnState,
 };
 use crate::game_ui_controller::{GameUIController, GameUiControllerPlugin};
-use crate::spawn_ui::spawn_game_ui;
 use bevy::prelude::*;
 use bevy_rand::prelude::WyRand;
 use bevy_rand::resource::GlobalEntropy;
 use rand::Rng;
-use std::collections::BTreeMap;
 
 pub fn draw_card(
     mut interaction_query: Query<
