@@ -392,7 +392,6 @@ impl GameUIController {
     }
 
     pub fn get_card_id(&self, slot: &CardSlot) -> Option<AssetId<Card>> {
-        println!("{:#?}", slot);
         self.current_cards[slot].clone()
     }
 
@@ -480,12 +479,14 @@ fn set_cards(
                     break;
                 }
             }
-            Some(slot_id) => {
+            Some(mut slot_id) => {
                 let first_empty_slot = slots_and_ui
                     .iter()
                     .map(|x| x.0)
-                    .skip(slot_id)
                     .find(|x| game_ui_controller.get_card_id(x).is_none());
+                if slot_id > first_empty_slot.unwrap().id {
+                    slot_id = first_empty_slot.unwrap().id;
+                }
 
                 for (slot, mut ui) in slots_and_ui.into_iter().rev() {
                     if slot.id > first_empty_slot.unwrap().id {
