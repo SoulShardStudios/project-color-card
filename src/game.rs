@@ -51,7 +51,7 @@ pub fn draw_card(
                     random_card_of_type.unwrap(),
                     None,
                 );
-                // TODO: RE ENABLE WHEN ALL CARD TYPES AE PRESENT: CardType::from_i8(rng.gen_range(0..4)).unwrap();
+                // TODO: RE ENABLE WHEN ALL CARD TYPES ARE PRESENT: CardType::from_i8(rng.gen_range(0..4)).unwrap();
                 let new_card_type = match rng.gen_range(0..2) {
                     0 => CardType::Beast,
                     1 => CardType::Equipment,
@@ -114,7 +114,7 @@ fn play_card(
                 match *interaction {
                     Interaction::Pressed => match game_ui_controller.get_card_id(slot) {
                         Some(card) => {
-                            custom_cursor.set_card(card);
+                            *custom_cursor = CustomCursor::Card(card);
                             game_ui_controller.take_card(slot);
                         }
                         _ => {}
@@ -138,7 +138,7 @@ fn play_card(
                             cursor_card,
                             Some(slot.id),
                         );
-                        custom_cursor.set_default();
+                        *custom_cursor = CustomCursor::Default;
                         turn_state.set(TurnState::ApplyMoves);
                     }
                     _ => {}
