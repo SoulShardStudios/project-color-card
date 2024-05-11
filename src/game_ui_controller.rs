@@ -130,11 +130,6 @@ fn set_cards(
     };
     for (team, slot_type, card, id) in game_ui_controller.push_card_actions.clone() {
         let card_asset = cards.get(card).unwrap();
-
-        let textures: Vec<_> = query
-            .iter()
-            .map(|(_, image)| image.texture.clone())
-            .collect();
         let slots_and_ui: Vec<_> = query
             .iter_mut()
             .filter(|(x, _)| x.team == team && x.slot_type == slot_type)
@@ -170,20 +165,30 @@ fn set_cards(
                 if slot_id > first_empty_slot_id {
                     slot_id = first_empty_slot_id;
                 }
+                let mut last_card: Option<AssetId<Card>> = None;
 
-                for (slot, mut ui) in slots_and_ui.into_iter().rev() {
-                    if slot.id > first_empty_slot_id {
-                        continue;
-                    }
+                for (slot, mut ui) in slots_and_ui.into_iter().skip(slot_id) {
                     if slot.id == slot_id {
-                        ui.texture = card_asset.image_handle.clone();
+                        last_card = *game_ui_controller.current_cards.get(&slot).unwrap();
                         game_ui_controller.current_cards.remove(&slot);
+                        ui.texture = card_asset.image_handle.clone();
                         game_ui_controller
                             .current_cards
-                            .insert(slot.clone().clone(), Some(card));
-                        break;
+                            .insert(slot.clone(), Some(card));
+                        continue;
                     }
-                    ui.texture = textures[slot.id - 1].clone();
+                    let last_card_unwrapped = match last_card {
+                        Some(x) => x,
+                        _ => {
+                            break;
+                        }
+                    };
+                    last_card = *game_ui_controller.current_cards.get(&slot).unwrap();
+                    game_ui_controller.current_cards.remove(&slot);
+                    ui.texture = cards.get(last_card_unwrapped).unwrap().image_handle.clone();
+                    game_ui_controller
+                        .current_cards
+                        .insert(slot.clone(), Some(last_card_unwrapped));
                 }
             }
         }
@@ -236,7 +241,7 @@ fn take_cards(
             .iter_mut()
             .filter(|(x, _)| x.team == slot.team && x.slot_type == slot.slot_type)
         {
-            if slot.id == 7 {
+            if slot.id == CARD_SLOT_COUNT - 1 {
                 continue;
             }
             if game_ui_controller.get_card_id(slot).is_some() {
