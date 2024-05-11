@@ -2,28 +2,17 @@ use crate::assets::LoadState;
 use crate::cards::Card;
 use bevy::prelude::*;
 
-#[derive(Default, Clone)]
-enum CustomCursorData {
+#[derive(Component, Default, Clone)]
+pub enum CustomCursor {
     #[default]
     Default,
     Card(AssetId<Card>),
 }
 
-#[derive(Component)]
-pub struct CustomCursor {
-    current_cursor: CustomCursorData,
-}
-
 impl CustomCursor {
-    pub fn set_default(&mut self) {
-        self.current_cursor = CustomCursorData::Default;
-    }
-    pub fn set_card(&mut self, card: AssetId<Card>) {
-        self.current_cursor = CustomCursorData::Card(card);
-    }
     pub fn get_current_card(&self) -> Option<AssetId<Card>> {
-        match self.current_cursor {
-            CustomCursorData::Card(x) => Some(x),
+        match self {
+            CustomCursor::Card(x) => Some(*x),
             _ => None,
         }
     }
@@ -39,9 +28,7 @@ fn spawn_custom_cursor(mut commands: Commands) {
             },
             ..default()
         })
-        .insert(CustomCursor {
-            current_cursor: CustomCursorData::Default,
-        });
+        .insert(CustomCursor::Default);
 }
 
 fn move_custom_cursor(
@@ -60,29 +47,31 @@ fn move_custom_cursor(
 }
 
 fn manage_custom_cursor_asset(
-    mut custom_cursor_query: Query<(&mut CustomCursor, &mut UiImage)>,
+    mut custom_cursor_query: Query<(&mut CustomCursor, &mut UiImage, &mut Visibility)>,
     mut window: Query<&mut Window>,
     cards: Res<Assets<Card>>,
 ) {
-    let (cursor, mut image) = match custom_cursor_query.get_single_mut() {
+    let (cursor, mut image, mut visibility) = match custom_cursor_query.get_single_mut() {
         Ok(x) => x,
         _ => {
             return;
         }
     };
-    match cursor.current_cursor {
-        CustomCursorData::Card(x) => {
+    match cursor.to_owned() {
+        CustomCursor::Card(x) => {
             match cards.get(x) {
                 Some(x) => image.texture = x.image_handle.clone(),
                 None => {}
-            }
+            };
+            *visibility = Visibility::Visible;
             match window.get_single_mut() {
                 Ok(mut x) => x.cursor.visible = false,
                 _ => {}
             };
         }
-        CustomCursorData::Default => {
+        CustomCursor::Default => {
             image.texture = Handle::default();
+            *visibility = Visibility::Hidden;
             match window.get_single_mut() {
                 Ok(mut x) => x.cursor.visible = true,
                 _ => {}
