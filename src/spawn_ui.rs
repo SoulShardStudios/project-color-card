@@ -2,7 +2,8 @@ use crate::cards::{get_card_back_image, CardBack, CardBackType};
 use crate::constants::CARD_SLOT_COUNT;
 
 use crate::game_state::{
-    ButtonCardSlot, CardDeckMarker, CardSlot, CardSlotType, DiscardMarker, NextTurnCardType, Team,
+    BlueHealthMarker, ButtonCardSlot, CardDeckMarker, CardSlot, CardSlotType, DiscardMarker,
+    NextTurnCardType, RedHealthMarker, Team,
 };
 use bevy::prelude::*;
 use bevy::render::texture::{
@@ -237,13 +238,49 @@ fn spawn_card_piles<'a>(
                 texture: assets.load("ui/Heart1.png"),
                 ..default()
             },
+            style: Style {
+                width: Val::Px(100.0),
+                aspect_ratio: Some(1.0),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..default()
+            },
             ..default()
         })
+        .insert(RedHealthMarker)
         .with_children(|parent| {
             parent.spawn(TextBundle::from_section(
                 "100",
                 TextStyle {
                     font: font.clone(),
+                    font_size: 20.0,
+                    ..default()
+                },
+            ));
+        });
+
+    parent
+        .spawn(ImageBundle {
+            image: UiImage {
+                texture: assets.load("ui/Heart2.png"),
+                ..default()
+            },
+            style: Style {
+                width: Val::Px(100.0),
+                aspect_ratio: Some(1.0),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..default()
+            },
+            ..default()
+        })
+        .insert(BlueHealthMarker)
+        .with_children(|parent| {
+            parent.spawn(TextBundle::from_section(
+                "100",
+                TextStyle {
+                    font: font.clone(),
+                    font_size: 20.0,
                     ..default()
                 },
             ));
