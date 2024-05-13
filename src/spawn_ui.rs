@@ -27,6 +27,9 @@ pub fn spawn_game_ui(
 
     let background: Handle<Image> = assets.load_with_settings("ui/Background.png", settings);
 
+    let font = assets.load("ui/simple-pixel.ttf");
+    let slot: Handle<Image> = assets.load("ui/Slot.png");
+
     commands.spawn(SpriteBundle {
         texture: background,
         sprite: Sprite {
@@ -59,7 +62,9 @@ pub fn spawn_game_ui(
                     },
                     ..default()
                 })
-                .with_children(|parent| spawn_card_piles(parent, &card_backs, &card_type_state));
+                .with_children(|parent| {
+                    spawn_card_piles(parent, &card_backs, &card_type_state, font.clone(), &assets)
+                });
             parent
                 .spawn(NodeBundle {
                     style: Style {
@@ -77,28 +82,32 @@ pub fn spawn_game_ui(
                         Team::Blue,
                         CardSlotType::Hand,
                         &Color::rgba(0.0, 0.0, 0.0, 0.0),
-                        &assets,
+                        slot.clone(),
+                        font.clone(),
                     );
                     spawn_slots_for_team(
                         parent,
                         Team::Blue,
                         CardSlotType::Play,
                         &Color::rgba(0.0, 0.0, 0.0, 0.0),
-                        &assets,
+                        slot.clone(),
+                        font.clone(),
                     );
                     spawn_slots_for_team(
                         parent,
                         Team::Red,
                         CardSlotType::Play,
                         &Color::rgba(0.0, 0.0, 0.0, 0.0),
-                        &assets,
+                        slot.clone(),
+                        font.clone(),
                     );
                     spawn_slots_for_team(
                         parent,
                         Team::Red,
                         CardSlotType::Hand,
                         &Color::rgba(0.0, 0.0, 0.0, 0.0),
-                        &assets,
+                        slot.clone(),
+                        font.clone(),
                     );
                 });
         });
@@ -109,9 +118,10 @@ fn spawn_slots_for_team<'a>(
     team: Team,
     slot_type: CardSlotType,
     color: &Color,
-    assets: &AssetServer,
+    slot: Handle<Image>,
+    font: Handle<Font>,
 ) {
-    let slot: Handle<Image> = assets.load("ui/Slot.png");
+
     parent
         .spawn(NodeBundle {
             style: Style {
@@ -127,7 +137,7 @@ fn spawn_slots_for_team<'a>(
         .with_children(|parent| {
             for id in 0..CARD_SLOT_COUNT {
                 parent
-                    .spawn(ImageBundle {
+                    .spawn(ButtonBundle {
                         style: Style {
                             height: Val::Percent(100.0),
                             aspect_ratio: Some(72.0 / 102.0),
@@ -138,22 +148,51 @@ fn spawn_slots_for_team<'a>(
                             ..default()
                         },
                         ..default()
-                    })
+                    })       .insert(CardSlot {
+                        id: id,
+                        team: team,
+                        slot_type: slot_type,
+                    })    
                     .with_children(|parent| {
                         parent
-                            .spawn(ButtonBundle {
+                            .spawn(ImageBundle {
                                 style: Style {
                                     height: Val::Percent(100.0),
                                     aspect_ratio: Some(72.0 / 102.0),
                                     ..default()
                                 },
-                                background_color: BackgroundColor(Color::rgba(0.0, 0.0, 0.0, 0.0)),
+                                visibility: Visibility::Hidden,
                                 ..default()
                             })
                             .insert(CardSlot {
                                 id: id,
                                 team: team,
                                 slot_type: slot_type,
+                            })
+                            .with_children(|parent| {
+                                parent.spawn(TextBundle {
+                                    style: Style { right: Val::Percent(0.8 * 100.0), left: Val::Percent(0.1 * 100.0), top: Val::Percent(0.6274509803921569 * 100.0), bottom: Val::Percent(0.1 * 100.0), width: Val::Percent(80.0), height: Val::Percent(37.254901960784316), ..default() },
+                                    text: Text {
+                                        sections: vec![TextSection {
+                                            style: TextStyle {
+                                                font: font.clone(),
+                                                color: Color::Rgba {
+                                                    red: 0.0,
+                                                    green: 0.0,
+                                                    blue: 0.0,
+                                                    alpha: 1.0,
+                                                },
+                                                font_size: 7.0,
+                                                ..default()
+                                            },
+                                            value: "this is a test text for all cards so I can position this right".to_string(),
+                                        }],
+                                        linebreak_behavior: bevy::text::BreakLineOn::AnyCharacter,
+                                        ..default()
+                                    },
+                                    
+                                    ..default()
+                                });
                             });
                     });
             }
@@ -164,6 +203,8 @@ fn spawn_card_piles<'a>(
     parent: &mut ChildBuilder<'a>,
     card_backs: &Res<Assets<CardBack>>,
     card_type_state: &Res<State<NextTurnCardType>>,
+    font: Handle<Font>,
+    assets: &Res<AssetServer>,
 ) {
     let discard_back = get_card_back_image(card_backs, CardBackType::Discard);
     let current_back = get_card_back_image(
@@ -184,6 +225,25 @@ fn spawn_card_piles<'a>(
             ..default()
         })
         .insert(CardDeckMarker);
+
+    parent
+        .spawn(ImageBundle {
+            image: UiImage {
+                texture: assets.load("ui/Heart1.png"),
+                ..default()
+            },
+            ..default()
+        })
+        .with_children(|parent| {
+            parent.spawn(TextBundle::from_section(
+                "100",
+                TextStyle {
+                    font: font.clone(),
+                    ..default()
+                },
+            ));
+        });
+
     parent
         .spawn(ImageBundle {
             style: Style {

@@ -120,7 +120,7 @@ impl GameUIController {
 fn set_cards(
     mut game_ui_controller_query: Query<&mut GameUIController>,
     cards: Res<Assets<Card>>,
-    mut query: Query<(&CardSlot, &mut UiImage, &mut BackgroundColor)>,
+    mut query: Query<(&CardSlot, &mut UiImage, &mut Visibility)>,
 ) {
     let mut game_ui_controller = match game_ui_controller_query.get_single_mut() {
         Ok(x) => x,
@@ -137,7 +137,7 @@ fn set_cards(
 
         match id {
             None => {
-                for (slot, mut ui, mut bg_color) in slots_and_ui {
+                for (slot, mut ui, mut visibility) in slots_and_ui {
                     if game_ui_controller.get_card_id(slot).is_some() {
                         // should we shift the stack?
 
@@ -148,7 +148,7 @@ fn set_cards(
                     game_ui_controller
                         .current_cards
                         .insert(slot.clone(), Some(card));
-                    *bg_color = BackgroundColor(Color::rgba(1.0, 1.0, 1.0, 1.0));
+                    *visibility = Visibility::Visible;
                     break;
                 }
             }
@@ -168,7 +168,7 @@ fn set_cards(
                 }
                 let mut last_card: Option<AssetId<Card>> = None;
 
-                for (slot, mut ui, mut bg_color) in slots_and_ui.into_iter().skip(slot_id) {
+                for (slot, mut ui, mut visibility) in slots_and_ui.into_iter().skip(slot_id) {
                     if slot.id == slot_id {
                         last_card = *game_ui_controller.current_cards.get(&slot).unwrap();
                         game_ui_controller.current_cards.remove(&slot);
@@ -176,7 +176,7 @@ fn set_cards(
                         game_ui_controller
                             .current_cards
                             .insert(slot.clone(), Some(card));
-                        *bg_color = BackgroundColor(Color::rgba(1.0, 1.0, 1.0, 1.0));
+                        *visibility = Visibility::Visible;
                         continue;
                     }
                     let last_card_unwrapped = match last_card {
@@ -191,7 +191,7 @@ fn set_cards(
                     game_ui_controller
                         .current_cards
                         .insert(slot.clone(), Some(last_card_unwrapped));
-                    *bg_color = BackgroundColor(Color::rgba(1.0, 1.0, 1.0, 1.0));
+                    *visibility = Visibility::Visible;
                 }
             }
         }
@@ -219,7 +219,7 @@ fn damage_cards(
 
 fn take_cards(
     mut game_ui_controller_query: Query<&mut GameUIController>,
-    mut query: Query<(&CardSlot, &mut UiImage, &mut BackgroundColor)>,
+    mut query: Query<(&CardSlot, &mut UiImage, &mut Visibility)>,
 ) {
     let mut game_ui_controller = match game_ui_controller_query.get_single_mut() {
         Ok(x) => x,
@@ -240,7 +240,7 @@ fn take_cards(
             .iter()
             .map(|(_, image, _)| image.texture.clone())
             .collect();
-        for (slot, mut ui, mut bg_color) in query
+        for (slot, mut ui, mut visibility) in query
             .iter_mut()
             .filter(|(x, _, _)| x.team == slot.team && x.slot_type == slot.slot_type)
         {
@@ -261,11 +261,10 @@ fn take_cards(
             game_ui_controller
                 .current_cards
                 .insert(slot.clone(), next_slot_card);
-            *bg_color = BackgroundColor(match next_slot_card {
-                Some(_) => Color::rgba(1.0, 1.0, 1.0, 1.0),
-                None => Color::rgba(0.0, 0.0, 0.0, 0.0),
-
-            })
+            *visibility = match next_slot_card {
+                Some(_) => Visibility::Visible,
+                None => Visibility::Hidden,
+            }
         }
     }
 

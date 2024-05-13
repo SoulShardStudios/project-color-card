@@ -52,6 +52,14 @@ pub struct CardDeckMarker;
 #[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect)]
 pub struct DiscardMarker;
 
+
+#[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect)]
+pub struct RedHealthMarker;
+
+#[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect)]
+pub struct BlueHealthMarker;
+
+
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, States, Reflect)]
 pub enum TurnState {
     #[default]

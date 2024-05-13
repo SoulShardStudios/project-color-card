@@ -18,7 +18,7 @@ impl CustomCursor {
     }
 }
 
-fn spawn_custom_cursor(mut commands: Commands) {
+fn spawn_custom_cursor(mut commands: Commands, mut window: Query<&mut Window>) {
     commands
         .spawn(ImageBundle {
             style: Style {
@@ -29,6 +29,10 @@ fn spawn_custom_cursor(mut commands: Commands) {
             ..default()
         })
         .insert(CustomCursor::Default);
+    match window.get_single_mut() {
+        Ok(mut x) => x.cursor.visible = false,
+        _ => {}
+    }
 }
 
 fn move_custom_cursor(
@@ -47,11 +51,11 @@ fn move_custom_cursor(
 }
 
 fn manage_custom_cursor_asset(
-    mut custom_cursor_query: Query<(&mut CustomCursor, &mut UiImage, &mut Visibility)>,
-    mut window: Query<&mut Window>,
+    mut custom_cursor_query: Query<(&mut CustomCursor, &mut UiImage, &mut Style)>,
     cards: Res<Assets<Card>>,
+    assets: Res<AssetServer>,
 ) {
-    let (cursor, mut image, mut visibility) = match custom_cursor_query.get_single_mut() {
+    let (cursor, mut image, mut style) = match custom_cursor_query.get_single_mut() {
         Ok(x) => x,
         _ => {
             return;
@@ -63,19 +67,13 @@ fn manage_custom_cursor_asset(
                 Some(x) => image.texture = x.image_handle.clone(),
                 None => {}
             };
-            *visibility = Visibility::Visible;
-            match window.get_single_mut() {
-                Ok(mut x) => x.cursor.visible = false,
-                _ => {}
-            };
+            (*style).width = Val::Px(72.0);
+            (*style).aspect_ratio = Some(72.0 / 102.0);
         }
         CustomCursor::Default => {
-            image.texture = Handle::default();
-            *visibility = Visibility::Hidden;
-            match window.get_single_mut() {
-                Ok(mut x) => x.cursor.visible = true,
-                _ => {}
-            };
+            image.texture = assets.load("ui/Cursor.png");
+            (*style).width = Val::Px(21.0);
+            (*style).aspect_ratio = Some(21.0 / 27.0);
         }
     }
 }
