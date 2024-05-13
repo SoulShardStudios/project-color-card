@@ -4,7 +4,6 @@ use crate::constants::CARD_SLOT_COUNT;
 use crate::game_state::{CardSlot, CardSlotType, CardStats, Team};
 use crate::spawn_ui::spawn_game_ui;
 use bevy::prelude::*;
-use bevy::render::render_resource::encase::rts_array::Length;
 use bevy_rand::prelude::WyRand;
 use bevy_rand::resource::GlobalEntropy;
 use rand::Rng;
@@ -244,19 +243,28 @@ fn set_card_ui(
 
 fn damage_cards(
     mut query: Query<(&CardSlot, &mut CardStats)>,
-    game_ui_controller_query: Query<&GameUIController>,
+    mut game_ui_controller_query: Query<&mut GameUIController>,
 ) {
-    let game_ui_controller = match game_ui_controller_query.iter().nth(0) {
+    let mut game_ui_controller = match game_ui_controller_query.iter_mut().nth(0) {
         None => {
             return;
         }
         Some(x) => x,
     };
+    let mut slots_to_take: Vec<CardSlot> = vec![];
     for (slot, damage) in game_ui_controller.damage_card_actions.iter() {
         match query.iter_mut().filter(|(x, _)| **x == *slot).nth(0) {
-            Some(mut x) => x.1.hp -= damage,
+            Some(mut x) => {
+                x.1.hp = x.1.hp.saturating_sub(*damage);
+                if x.1.hp == 0 {
+                    slots_to_take.push(slot.clone());
+                }
+            }
             _ => {}
         }
+    }
+    for slot in slots_to_take {
+        game_ui_controller.take_card(&slot);
     }
 }
 

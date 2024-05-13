@@ -171,12 +171,11 @@ fn spawn_slots_for_team<'a>(
                             .with_children(|parent| {
                                 parent.spawn(TextBundle {
                                     style: Style {
-                                        right: Val::Percent(0.8 * 100.0),
                                         left: Val::Percent(0.1 * 100.0),
                                         top: Val::Percent(0.6274509803921569 * 100.0),
-                                        bottom: Val::Percent(0.1 * 100.0),
                                         width: Val::Percent(80.0),
                                         height: Val::Percent(37.254901960784316),
+                                        position_type: PositionType::Absolute,
                                         ..default()
                                     },
                                     text: Text {
@@ -206,6 +205,7 @@ fn spawn_slots_for_team<'a>(
                                         top: Val::Percent(8.0 / 102.0),
                                         width: Val::Percent((19.0 - 8.0) / 72.0),
                                         height: Val::Percent((15.0 - 8.0) / 102.0),
+                                        position_type: PositionType::Absolute,
                                         ..default()
                                     },
                                     text: Text {
