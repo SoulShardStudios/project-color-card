@@ -2,8 +2,8 @@ use crate::cards::{get_card_back_image, CardBack, CardBackType};
 use crate::constants::CARD_SLOT_COUNT;
 
 use crate::game_state::{
-    BlueHealthMarker, ButtonCardSlot, CardDeckMarker, CardSlot, CardSlotType, DiscardMarker,
-    NextTurnCardType, RedHealthMarker, Team,
+    BlueHealthMarker, ButtonCardSlot, CardDeckMarker, CardSlot, CardSlotType, CardStats,
+    DiscardMarker, NextTurnCardType, RedHealthMarker, Team,
 };
 use bevy::prelude::*;
 use bevy::render::texture::{
@@ -167,6 +167,7 @@ fn spawn_slots_for_team<'a>(
                                 ..default()
                             })
                             .insert(slot)
+                            .insert(CardStats { hp: 0 })
                             .with_children(|parent| {
                                 parent.spawn(TextBundle {
                                     style: Style {
@@ -176,6 +177,35 @@ fn spawn_slots_for_team<'a>(
                                         bottom: Val::Percent(0.1 * 100.0),
                                         width: Val::Percent(80.0),
                                         height: Val::Percent(37.254901960784316),
+                                        ..default()
+                                    },
+                                    text: Text {
+                                        sections: vec![TextSection {
+                                            style: TextStyle {
+                                                font: font.clone(),
+                                                color: Color::Rgba {
+                                                    red: 0.0,
+                                                    green: 0.0,
+                                                    blue: 0.0,
+                                                    alpha: 1.0,
+                                                },
+                                                font_size: 7.0,
+                                                ..default()
+                                            },
+                                            value: "".to_string(),
+                                        }],
+                                        linebreak_behavior: bevy::text::BreakLineOn::AnyCharacter,
+                                        ..default()
+                                    },
+
+                                    ..default()
+                                });
+                                parent.spawn(TextBundle {
+                                    style: Style {
+                                        right: Val::Percent(8.0 / 72.0),
+                                        top: Val::Percent(8.0 / 102.0),
+                                        width: Val::Percent((19.0 - 8.0) / 72.0),
+                                        height: Val::Percent((15.0 - 8.0) / 102.0),
                                         ..default()
                                     },
                                     text: Text {
