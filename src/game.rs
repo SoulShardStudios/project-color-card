@@ -4,7 +4,8 @@ use crate::cards::{
 };
 use crate::custom_cursor::{CustomCursor, CustomCursorPlugin};
 use crate::game_state::{
-    CardDeckMarker, CardSlot, CardSlotType, CurrentTurnTeam, NextTurnCardType, Team, TurnState,
+    ButtonCardSlot, CardDeckMarker, CardSlot, CardSlotType, CurrentTurnTeam, NextTurnCardType,
+    Team, TurnState,
 };
 use crate::game_ui_controller::{GameUIController, GameUiControllerPlugin};
 use bevy::prelude::*;
@@ -77,8 +78,8 @@ fn play_card(
     mut game_ui_controller_query: Query<&mut GameUIController>,
     mut custom_cursor_query: Query<&mut CustomCursor>,
     mut interaction_query: Query<
-        (&Interaction, &CardSlot),
-        (Changed<Interaction>, With<Button>, With<CardSlot>),
+        (&Interaction, &ButtonCardSlot),
+        (Changed<Interaction>, With<Button>, With<ButtonCardSlot>),
     >,
     current_turn_state: Res<State<TurnState>>,
     mut turn_state: ResMut<NextState<TurnState>>,
@@ -107,15 +108,16 @@ fn play_card(
         // pick up card and set custom cursor
         None => {
             for (interaction, slot) in &mut interaction_query {
-                if !(slot.team == current_turn_team.get().0 && slot.slot_type == CardSlotType::Hand)
+                if !(slot.0.team == current_turn_team.get().0
+                    && slot.0.slot_type == CardSlotType::Hand)
                 {
                     continue;
                 }
                 match *interaction {
-                    Interaction::Pressed => match game_ui_controller.get_card_id(slot) {
+                    Interaction::Pressed => match game_ui_controller.get_card_id(&slot.0) {
                         Some(card) => {
                             *custom_cursor = CustomCursor::Card(card);
-                            game_ui_controller.take_card(slot);
+                            game_ui_controller.take_card(&slot.0);
                         }
                         _ => {}
                     },
@@ -126,17 +128,18 @@ fn play_card(
         // place custom cursor down in play and adjust slots
         Some(cursor_card) => {
             for (interaction, slot) in &mut interaction_query {
-                if !(slot.team == current_turn_team.get().0 && slot.slot_type == CardSlotType::Play)
+                if !(slot.0.team == current_turn_team.get().0
+                    && slot.0.slot_type == CardSlotType::Play)
                 {
                     continue;
                 }
                 match *interaction {
                     Interaction::Pressed => {
                         game_ui_controller.push_card_at(
-                            slot.slot_type,
-                            slot.team,
+                            slot.0.slot_type,
+                            slot.0.team,
                             cursor_card,
-                            Some(slot.id),
+                            Some(slot.0.id),
                         );
                         *custom_cursor = CustomCursor::Default;
                         turn_state.set(TurnState::ApplyMoves);

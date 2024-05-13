@@ -2,7 +2,7 @@ use crate::cards::{get_card_back_image, CardBack, CardBackType};
 use crate::constants::CARD_SLOT_COUNT;
 
 use crate::game_state::{
-    CardDeckMarker, CardSlot, CardSlotType, DiscardMarker, NextTurnCardType, Team,
+    ButtonCardSlot, CardDeckMarker, CardSlot, CardSlotType, DiscardMarker, NextTurnCardType, Team
 };
 use bevy::prelude::*;
 use bevy::render::texture::{
@@ -118,7 +118,7 @@ fn spawn_slots_for_team<'a>(
     team: Team,
     slot_type: CardSlotType,
     color: &Color,
-    slot: Handle<Image>,
+    slot_image: Handle<Image>,
     font: Handle<Font>,
 ) {
 
@@ -136,6 +136,11 @@ fn spawn_slots_for_team<'a>(
         })
         .with_children(|parent| {
             for id in 0..CARD_SLOT_COUNT {
+                let slot = CardSlot {
+                    id: id,
+                    team: team,
+                    slot_type: slot_type,
+                };
                 parent
                     .spawn(ButtonBundle {
                         style: Style {
@@ -144,15 +149,11 @@ fn spawn_slots_for_team<'a>(
                             ..default()
                         },
                         image: UiImage {
-                            texture: slot.clone(),
+                            texture: slot_image.clone(),
                             ..default()
                         },
                         ..default()
-                    })       .insert(CardSlot {
-                        id: id,
-                        team: team,
-                        slot_type: slot_type,
-                    })    
+                    })       .insert(ButtonCardSlot(slot.clone()))    
                     .with_children(|parent| {
                         parent
                             .spawn(ImageBundle {
@@ -164,11 +165,7 @@ fn spawn_slots_for_team<'a>(
                                 visibility: Visibility::Hidden,
                                 ..default()
                             })
-                            .insert(CardSlot {
-                                id: id,
-                                team: team,
-                                slot_type: slot_type,
-                            })
+                            .insert(slot)
                             .with_children(|parent| {
                                 parent.spawn(TextBundle {
                                     style: Style { right: Val::Percent(0.8 * 100.0), left: Val::Percent(0.1 * 100.0), top: Val::Percent(0.6274509803921569 * 100.0), bottom: Val::Percent(0.1 * 100.0), width: Val::Percent(80.0), height: Val::Percent(37.254901960784316), ..default() },
