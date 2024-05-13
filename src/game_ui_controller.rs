@@ -138,7 +138,7 @@ fn set_cards(
 
         match id {
             None => {
-                for (slot, mut ui, mut visibility, mut children) in slots_and_ui {
+                for (slot, mut ui, mut visibility, children) in slots_and_ui {
                     if game_ui_controller.get_card_id(slot).is_some() {
                         // should we shift the stack?
 
@@ -150,6 +150,11 @@ fn set_cards(
                         .current_cards
                         .insert(slot.clone(), Some(card));
                     *visibility = Visibility::Visible;
+                    child_query
+                        .get_mut(*children.iter().nth(0).unwrap())
+                        .unwrap()
+                        .sections[0]
+                        .value = card_asset.text.clone();
                     break;
                 }
             }
@@ -169,7 +174,7 @@ fn set_cards(
                 }
                 let mut last_card: Option<AssetId<Card>> = None;
 
-                for (slot, mut ui, mut visibility, mut children) in
+                for (slot, mut ui, mut visibility, children) in
                     slots_and_ui.into_iter().skip(slot_id)
                 {
                     if slot.id == slot_id {
