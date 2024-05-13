@@ -130,7 +130,6 @@ fn set_cards(
         }
     };
     for (team, slot_type, card, id) in game_ui_controller.push_card_actions.clone() {
-        let card_asset = cards.get(card).unwrap();
         let slots_and_ui: Vec<_> = query
             .iter_mut()
             .filter(|(x, _, _, _)| x.team == team && x.slot_type == slot_type)
@@ -138,23 +137,20 @@ fn set_cards(
 
         match id {
             None => {
-                for (slot, mut ui, mut visibility, children) in slots_and_ui {
+                for (slot, ui, visibility, children) in slots_and_ui {
                     if game_ui_controller.get_card_id(slot).is_some() {
-                        // should we shift the stack?
-
                         continue;
                     }
-                    ui.texture = card_asset.image_handle.clone();
-                    game_ui_controller.current_cards.remove(&slot);
-                    game_ui_controller
-                        .current_cards
-                        .insert(slot.clone(), Some(card));
-                    *visibility = Visibility::Visible;
-                    child_query
-                        .get_mut(*children.iter().nth(0).unwrap())
-                        .unwrap()
-                        .sections[0]
-                        .value = card_asset.text.clone();
+                    set_card_ui(
+                        &mut game_ui_controller,
+                        slot,
+                        &card,
+                        &cards,
+                        ui,
+                        visibility,
+                        &mut child_query,
+                        &children,
+                    );
                     break;
                 }
             }
@@ -174,22 +170,19 @@ fn set_cards(
                 }
                 let mut last_card: Option<AssetId<Card>> = None;
 
-                for (slot, mut ui, mut visibility, children) in
-                    slots_and_ui.into_iter().skip(slot_id)
-                {
+                for (slot, ui, visibility, children) in slots_and_ui.into_iter().skip(slot_id) {
                     if slot.id == slot_id {
                         last_card = *game_ui_controller.current_cards.get(&slot).unwrap();
-                        game_ui_controller.current_cards.remove(&slot);
-                        ui.texture = card_asset.image_handle.clone();
-                        game_ui_controller
-                            .current_cards
-                            .insert(slot.clone(), Some(card));
-                        *visibility = Visibility::Visible;
-                        child_query
-                            .get_mut(*children.iter().nth(0).unwrap())
-                            .unwrap()
-                            .sections[0]
-                            .value = card_asset.text.clone();
+                        set_card_ui(
+                            &mut game_ui_controller,
+                            slot,
+                            &card,
+                            &cards,
+                            ui,
+                            visibility,
+                            &mut child_query,
+                            &children,
+                        );
                         continue;
                     }
                     let last_card_unwrapped = match last_card {
@@ -199,23 +192,45 @@ fn set_cards(
                         }
                     };
                     last_card = *game_ui_controller.current_cards.get(&slot).unwrap();
-                    game_ui_controller.current_cards.remove(&slot);
-                    let last_card = cards.get(last_card_unwrapped).unwrap();
-                    ui.texture = last_card.image_handle.clone();
-                    game_ui_controller
-                        .current_cards
-                        .insert(slot.clone(), Some(last_card_unwrapped));
-                    *visibility = Visibility::Visible;
-                    child_query
-                        .get_mut(*children.iter().nth(0).unwrap())
-                        .unwrap()
-                        .sections[0]
-                        .value = last_card.text.clone();
+                    set_card_ui(
+                        &mut game_ui_controller,
+                        slot,
+                        &last_card_unwrapped,
+                        &cards,
+                        ui,
+                        visibility,
+                        &mut child_query,
+                        &children,
+                    );
                 }
             }
         }
     }
     game_ui_controller.push_card_actions.clear();
+}
+
+fn set_card_ui(
+    game_ui_controller: &mut GameUIController,
+    slot: &CardSlot,
+    card: &AssetId<Card>,
+    cards: &Res<Assets<Card>>,
+    mut ui: Mut<UiImage>,
+    mut visibility: Mut<Visibility>,
+    child_query: &mut Query<&mut Text>,
+    children: &Children,
+) {
+    let card_asset = cards.get(*card).unwrap();
+    game_ui_controller.current_cards.remove(&slot);
+    ui.texture = card_asset.image_handle.clone();
+    game_ui_controller
+        .current_cards
+        .insert(slot.clone(), Some(*card));
+    *visibility = Visibility::Visible;
+    child_query
+        .get_mut(*children.iter().nth(0).unwrap())
+        .unwrap()
+        .sections[0]
+        .value = card_asset.text.clone();
 }
 
 fn damage_cards(
