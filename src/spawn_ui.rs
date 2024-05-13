@@ -2,7 +2,7 @@ use crate::cards::{get_card_back_image, CardBack, CardBackType};
 use crate::constants::CARD_SLOT_COUNT;
 
 use crate::game_state::{
-    ButtonCardSlot, CardDeckMarker, CardSlot, CardSlotType, DiscardMarker, NextTurnCardType, Team
+    ButtonCardSlot, CardDeckMarker, CardSlot, CardSlotType, DiscardMarker, NextTurnCardType, Team,
 };
 use bevy::prelude::*;
 use bevy::render::texture::{
@@ -121,7 +121,6 @@ fn spawn_slots_for_team<'a>(
     slot_image: Handle<Image>,
     font: Handle<Font>,
 ) {
-
     parent
         .spawn(NodeBundle {
             style: Style {
@@ -153,7 +152,8 @@ fn spawn_slots_for_team<'a>(
                             ..default()
                         },
                         ..default()
-                    })       .insert(ButtonCardSlot(slot.clone()))    
+                    })
+                    .insert(ButtonCardSlot(slot.clone()))
                     .with_children(|parent| {
                         parent
                             .spawn(ImageBundle {
@@ -168,7 +168,15 @@ fn spawn_slots_for_team<'a>(
                             .insert(slot)
                             .with_children(|parent| {
                                 parent.spawn(TextBundle {
-                                    style: Style { right: Val::Percent(0.8 * 100.0), left: Val::Percent(0.1 * 100.0), top: Val::Percent(0.6274509803921569 * 100.0), bottom: Val::Percent(0.1 * 100.0), width: Val::Percent(80.0), height: Val::Percent(37.254901960784316), ..default() },
+                                    style: Style {
+                                        right: Val::Percent(0.8 * 100.0),
+                                        left: Val::Percent(0.1 * 100.0),
+                                        top: Val::Percent(0.6274509803921569 * 100.0),
+                                        bottom: Val::Percent(0.1 * 100.0),
+                                        width: Val::Percent(80.0),
+                                        height: Val::Percent(37.254901960784316),
+                                        ..default()
+                                    },
                                     text: Text {
                                         sections: vec![TextSection {
                                             style: TextStyle {
@@ -182,12 +190,12 @@ fn spawn_slots_for_team<'a>(
                                                 font_size: 7.0,
                                                 ..default()
                                             },
-                                            value: "this is a test text for all cards so I can position this right".to_string(),
+                                            value: "".to_string(),
                                         }],
                                         linebreak_behavior: bevy::text::BreakLineOn::AnyCharacter,
                                         ..default()
                                     },
-                                    
+
                                     ..default()
                                 });
                             });
