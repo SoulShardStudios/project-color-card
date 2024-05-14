@@ -14,7 +14,7 @@ pub struct GameUIController {
     pub team_health: BTreeMap<Team, u32>,
     current_cards: BTreeMap<CardSlot, Option<AssetId<Card>>>,
     valid_new_cards: Vec<AssetId<Card>>,
-    push_card_actions: Vec<(Team, CardSlotType, AssetId<Card>, Option<usize>)>,
+    push_card_actions: Vec<(Team, CardSlotType, AssetId<Card>, Option<usize>, CardStats)>,
     take_card_actions: Vec<CardSlot>,
     damage_card_actions: Vec<(CardSlot, u32)>,
 }
@@ -74,9 +74,10 @@ impl GameUIController {
         team: Team,
         card: AssetId<Card>,
         slot_id: Option<usize>,
+        card_stats: CardStats,
     ) {
         self.push_card_actions
-            .push((team, slot_type, card, slot_id));
+            .push((team, slot_type, card, slot_id, card_stats));
     }
 
     pub fn take_card(&mut self, slot: &CardSlot) {
@@ -143,7 +144,7 @@ fn set_cards(
             return;
         }
     };
-    for (team, slot_type, card, id) in game_ui_controller.push_card_actions.clone() {
+    for (team, slot_type, card, id, card_stats) in game_ui_controller.push_card_actions.clone() {
         let slots_and_ui: Vec<_> = query
             .iter_mut()
             .filter(|(x, _, _, _, _)| x.team == team && x.slot_type == slot_type)
@@ -155,7 +156,6 @@ fn set_cards(
                     if game_ui_controller.get_card_id(card_query.0).is_some() {
                         continue;
                     }
-
                     set_card_ui(
                         &mut game_ui_controller,
                         &mut card_query,
@@ -238,7 +238,7 @@ fn set_card_ui(
         .get_mut(*card_query.3.iter().nth(1).unwrap())
         .unwrap()
         .sections[0]
-        .value = card_query.4.hp.to_string();
+        .value = card_query.4.hp.unwrap_or(0).to_string();
 }
 
 fn damage_cards(
@@ -254,12 +254,15 @@ fn damage_cards(
     let mut slots_to_take: Vec<CardSlot> = vec![];
     for (slot, damage) in game_ui_controller.damage_card_actions.iter() {
         match query.iter_mut().filter(|(x, _)| **x == *slot).nth(0) {
-            Some(mut x) => {
-                x.1.hp = x.1.hp.saturating_sub(*damage);
-                if x.1.hp == 0 {
-                    slots_to_take.push(slot.clone());
+            Some(mut x) => match &mut x.1.hp {
+                Some(mut hp) => {
+                    hp = hp.saturating_sub(*damage);
+                    if hp == 0 {
+                        slots_to_take.push(slot.clone());
+                    }
                 }
-            }
+                None => {}
+            },
             _ => {}
         }
     }

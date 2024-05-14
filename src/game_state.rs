@@ -47,7 +47,7 @@ pub struct ButtonCardSlot(pub CardSlot);
 
 #[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect, Debug)]
 pub struct CardStats {
-    pub hp: u32,
+    pub hp: Option<u32>,
 }
 
 #[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect)]
