@@ -186,7 +186,13 @@ fn spawn_slots_for_team<'a>(
                                             "",
                                             TextStyle {
                                                 font: font.clone(),
-                                                font_size: 20.0,
+                                                font_size: 7.0,
+                                                color: Color::Rgba {
+                                                    red: 0.0,
+                                                    green: 0.0,
+                                                    blue: 0.0,
+                                                    alpha: 1.0,
+                                                },
                                                 ..default()
                                             },
                                         ));
@@ -209,7 +215,13 @@ fn spawn_slots_for_team<'a>(
                                             "",
                                             TextStyle {
                                                 font: font.clone(),
-                                                font_size: 20.0,
+                                                font_size: 7.0,
+                                                color: Color::Rgba {
+                                                    red: 0.0,
+                                                    green: 0.0,
+                                                    blue: 0.0,
+                                                    alpha: 1.0,
+                                                },
                                                 ..default()
                                             },
                                         ));

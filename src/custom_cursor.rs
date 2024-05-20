@@ -59,7 +59,7 @@ fn manage_custom_cursor_asset(
     match cursor.to_owned() {
         CustomCursor::Card {
             card,
-            stats: cursor_stats,
+            stats: _cursor_stats,
         } => {
             match cards.get(card) {
                 Some(x) => image.texture = x.image_handle.clone(),

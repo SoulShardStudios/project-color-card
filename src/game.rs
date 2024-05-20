@@ -147,7 +147,10 @@ fn play_card(
             }
         }
         // place custom cursor down in play and adjust slots
-        CustomCursor::Card { card, stats } => {
+        CustomCursor::Card {
+            card,
+            stats: _stats,
+        } => {
             for (interaction, entity) in &mut interaction_query {
                 let (slot, stats) = card_slot_query
                     .get(children_query.iter_descendants(entity).nth(0).unwrap())
@@ -232,6 +235,7 @@ impl Plugin for GameUIPlugin {
         app.register_type::<CardSlot>()
             .register_type::<CardSlotType>()
             .register_type::<Team>()
+            .register_type::<CardSlot>()
             .init_state::<TurnState>()
             .init_state::<NextTurnCardType>()
             .init_state::<CurrentTurnTeam>()
