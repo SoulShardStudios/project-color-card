@@ -9,19 +9,34 @@ use bevy_rand::resource::GlobalEntropy;
 use rand::Rng;
 use std::collections::BTreeMap;
 
-#[derive(Component)]
-pub struct GameUIController {
-    pub team_health: BTreeMap<Team, u32>,
-    current_cards: BTreeMap<CardSlot, Option<AssetId<Card>>>,
-    valid_new_cards: Vec<AssetId<Card>>,
-    push_card_actions: Vec<(CardSlot, AssetId<Card>, CardStats)>,
-    take_card_actions: Vec<CardSlot>,
-    damage_card_actions: Vec<(CardSlot, u32)>,
+#[derive(Clone, Debug)]
+enum ModifyCardAction {
+    Remove {
+        slot: CardSlot,
+    },
+    Damage {
+        slot: CardSlot,
+        damage: u32,
+    },
+    Push {
+        slot: CardSlot,
+        card: AssetId<Card>,
+        stats: CardStats,
+    },
 }
 
-impl GameUIController {
+#[derive(Component)]
+pub struct GameController {
+    pub team_health: BTreeMap<Team, u32>,
+    current_cards: BTreeMap<CardSlot, Option<(AssetId<Card>, CardStats)>>,
+    valid_new_cards: Vec<AssetId<Card>>,
+    card_modifications: Vec<ModifyCardAction>,
+}
+
+impl GameController {
     pub fn new(cards: &Res<Assets<Card>>) -> Self {
-        let mut card_names: BTreeMap<CardSlot, Option<AssetId<Card>>> = BTreeMap::new();
+        let mut card_names: BTreeMap<CardSlot, Option<(AssetId<Card>, CardStats)>> =
+            BTreeMap::new();
         for team in [Team::Blue, Team::Red] {
             for slot_type in [CardSlotType::Hand, CardSlotType::Play] {
                 for slot_id in 0..CARD_SLOT_COUNT {
@@ -41,13 +56,11 @@ impl GameUIController {
             .filter(|(_id, card)| -> bool { card.colors.len() < 3 })
             .map(|x| -> AssetId<Card> { x.0 })
             .collect();
-        GameUIController {
+        GameController {
             team_health: BTreeMap::from_iter([(Team::Red, 100), (Team::Blue, 100)]),
             current_cards: card_names,
             valid_new_cards,
-            push_card_actions: vec![],
-            take_card_actions: vec![],
-            damage_card_actions: vec![],
+            card_modifications: vec![],
         }
     }
 
@@ -57,15 +70,15 @@ impl GameUIController {
             slot_type: slot_type,
             id: id,
         }) {
-            if self.get_card_id(&slot).is_none() {
+            if self.get_card(&slot).is_none() {
                 return false;
             }
         }
         return true;
     }
 
-    pub fn get_card_id(&self, slot: &CardSlot) -> Option<AssetId<Card>> {
-        self.current_cards[slot].clone()
+    pub fn get_card(&self, slot: &CardSlot) -> Option<(AssetId<Card>, CardStats)> {
+        self.current_cards.get(slot).map(|x| x.clone())?
     }
 
     pub fn get_first_open_slot(&self, team: Team, slot_type: CardSlotType) -> Option<usize> {
@@ -79,15 +92,27 @@ impl GameUIController {
     }
 
     pub fn push_card_at<'a>(&mut self, slot: CardSlot, card: AssetId<Card>, stats: CardStats) {
-        self.push_card_actions.push((slot, card, stats));
+        self.card_modifications.push(ModifyCardAction::Push {
+            slot: slot.clone(),
+            card: card,
+            stats: stats.clone(),
+        });
+        self.current_cards.remove(&slot);
+        self.current_cards.insert(slot, Some((card, stats)));
     }
 
     pub fn take_card(&mut self, slot: &CardSlot) {
-        self.take_card_actions.push(slot.clone());
+        self.card_modifications
+            .push(ModifyCardAction::Remove { slot: slot.clone() });
+        self.current_cards.remove(&slot);
+        self.current_cards.insert(slot.clone(), None);
     }
 
     pub fn damage_card(&mut self, slot: &CardSlot, damage: u32) {
-        self.damage_card_actions.push((slot.clone(), damage));
+        self.card_modifications.push(ModifyCardAction::Damage {
+            slot: slot.clone(),
+            damage: damage,
+        });
     }
 
     pub fn get_random_card(&self, rng: &mut ResMut<GlobalEntropy<WyRand>>) -> AssetId<Card> {
@@ -111,12 +136,58 @@ impl GameUIController {
             }
         }
     }
+
+    pub fn stack_cards(&mut self, team: Team, slot_type: CardSlotType) {
+        let bruh: Vec<_> = self
+            .current_cards
+            .iter()
+            .filter(|(slot, _)| slot.team == team && slot.slot_type == slot_type)
+            .map(|(x, y)| (x.clone(), y.clone()))
+            .collect();
+        for (slot, card) in bruh {
+            let first_open = match self.get_first_open_slot(team, slot_type) {
+                Some(x) => x,
+                None => {
+                    return;
+                }
+            };
+            let card = match card {
+                Some(x) => x,
+                None => {
+                    continue;
+                }
+            };
+            if slot.id > first_open {
+                let first_open_slot = CardSlot {
+                    id: first_open,
+                    team: slot.team,
+                    slot_type: slot.slot_type,
+                };
+                self.card_modifications.push(ModifyCardAction::Push {
+                    slot: first_open_slot.clone(),
+                    card: card.0,
+                    stats: card.1.clone(),
+                });
+                self.card_modifications
+                    .push(ModifyCardAction::Remove { slot: slot.clone() });
+                self.current_cards.remove(&slot);
+                self.current_cards
+                    .insert(first_open_slot, Some((card.0, card.1.clone())));
+            }
+        }
+    }
 }
 
-fn set_cards_main(
-    mut game_ui_controller_query: Query<&mut GameUIController>,
+fn apply_card_modifications(
+    mut game_ui_controller_query: Query<&mut GameController>,
     cards: Res<Assets<Card>>,
-    mut query: Query<(&CardSlot, &mut UiImage, &mut Visibility, Entity)>,
+    mut query: Query<(
+        &CardSlot,
+        &mut CardStats,
+        &mut UiImage,
+        &mut Visibility,
+        Entity,
+    )>,
     child_query: Query<&mut Children>,
     mut text_query: Query<&mut Text>,
 ) {
@@ -126,125 +197,78 @@ fn set_cards_main(
             return;
         }
     };
-    // relationship is text -> slot not the other way around but we need a direct query on it to modify it properly, I presume....
 
-    for (slot, card, stats) in game_ui_controller.push_card_actions.clone() {
-        for (query_slot, mut image, mut visibility, entity) in query.iter_mut() {
-            if *query_slot != slot {
-                continue;
+    for modification in game_ui_controller.card_modifications.clone() {
+        match modification {
+            ModifyCardAction::Push { slot, card, stats } => {
+                match query
+                    .iter_mut()
+                    .filter(|(x, _, _, _, _)| **x == slot)
+                    .nth(0)
+                {
+                    Some((_, _, mut image, mut visibility, entity)) => {
+                        let card_asset = cards.get(card).unwrap();
+                        image.texture = card_asset.image_handle.clone();
+                        *visibility = Visibility::Visible;
+                        for (idx, decendant) in child_query.iter_descendants(entity).enumerate() {
+                            for grand_decendant in child_query.iter_descendants(decendant) {
+                                if idx == 0 {
+                                    text_query.get_mut(grand_decendant).unwrap().sections[0]
+                                        .value = card_asset.text.clone();
+                                }
+                                if idx == 1 {
+                                    text_query.get_mut(grand_decendant).unwrap().sections[0].value =
+                                        stats.hp.map(|hp| hp.to_string()).unwrap_or("".to_string())
+                                }
+                            }
+                        }
+                    }
+                    _ => {}
+                }
             }
-
-            let card_asset = cards.get(card).unwrap();
-            game_ui_controller.current_cards.remove(&slot);
-            image.texture = card_asset.image_handle.clone();
-            game_ui_controller
-                .current_cards
-                .insert(slot.clone(), Some(card));
-            *visibility = Visibility::Visible;
-
-            for (idx, decendant) in child_query.iter_descendants(entity).enumerate() {
-                for grand_decendant in child_query.iter_descendants(decendant) {
-                    if idx == 0 {
-                        text_query.get_mut(grand_decendant).unwrap().sections[0].value =
-                            card_asset.text.clone();
+            ModifyCardAction::Remove { slot } => {
+                match query
+                    .iter_mut()
+                    .filter(|(x, _, _, _, _)| **x == slot)
+                    .nth(0)
+                {
+                    Some(mut x) => {
+                        x.2.texture = Handle::default();
+                        *x.3 = Visibility::Hidden;
                     }
-                    if idx == 1 {
-                        text_query.get_mut(grand_decendant).unwrap().sections[0].value =
-                            stats.hp.map(|hp| hp.to_string()).unwrap_or("".to_string())
-                    }
+                    _ => {}
+                }
+            }
+            ModifyCardAction::Damage { slot, damage } => {
+                let mut slots_to_take: Option<CardSlot> = None;
+                match query
+                    .iter_mut()
+                    .filter(|(x, _, _, _, _)| **x == slot)
+                    .nth(0)
+                {
+                    Some(mut x) => match &mut x.1.hp {
+                        Some(mut hp) => {
+                            hp = hp.saturating_sub(damage);
+                            if hp == 0 {
+                                slots_to_take = Some(slot.clone());
+                            }
+                        }
+                        None => {}
+                    },
+                    _ => {}
+                }
+                match slots_to_take {
+                    Some(x) => game_ui_controller.take_card(&x),
+                    None => {}
                 }
             }
         }
     }
-    game_ui_controller.push_card_actions.clear();
-}
-
-fn damage_cards(
-    mut query: Query<(&CardSlot, &mut CardStats)>,
-    mut game_ui_controller_query: Query<&mut GameUIController>,
-) {
-    let mut game_ui_controller = match game_ui_controller_query.iter_mut().nth(0) {
-        None => {
-            return;
-        }
-        Some(x) => x,
-    };
-    let mut slots_to_take: Vec<CardSlot> = vec![];
-    for (slot, damage) in game_ui_controller.damage_card_actions.iter() {
-        match query.iter_mut().filter(|(x, _)| **x == *slot).nth(0) {
-            Some(mut x) => match &mut x.1.hp {
-                Some(mut hp) => {
-                    hp = hp.saturating_sub(*damage);
-                    if hp == 0 {
-                        slots_to_take.push(slot.clone());
-                    }
-                }
-                None => {}
-            },
-            _ => {}
-        }
-    }
-    for slot in slots_to_take {
-        game_ui_controller.take_card(&slot);
-    }
-}
-
-fn take_cards(
-    mut game_ui_controller_query: Query<&mut GameUIController>,
-    mut query: Query<(&CardSlot, &mut UiImage, &mut Visibility)>,
-) {
-    let mut game_ui_controller = match game_ui_controller_query.get_single_mut() {
-        Ok(x) => x,
-        _ => {
-            return;
-        }
-    };
-    // apply take actions
-    for slot in game_ui_controller.take_card_actions.clone() {
-        match query.iter_mut().filter(|(x, _, _)| **x == slot).nth(0) {
-            Some(mut x) => x.1.texture = Handle::default(),
-            _ => {}
-        }
-        game_ui_controller.current_cards.remove(&slot);
-        game_ui_controller.current_cards.insert(slot.clone(), None);
-        // reset the stack
-        let textures: Vec<_> = query
-            .iter()
-            .map(|(_, image, _)| image.texture.clone())
-            .collect();
-        for (slot, mut ui, mut visibility) in query
-            .iter_mut()
-            .filter(|(x, _, _)| x.team == slot.team && x.slot_type == slot.slot_type)
-        {
-            if slot.id == CARD_SLOT_COUNT - 1 {
-                continue;
-            }
-            if game_ui_controller.get_card_id(slot).is_some() {
-                continue;
-            }
-            let next_slot = CardSlot {
-                id: slot.id + 1,
-                slot_type: slot.slot_type,
-                team: slot.team,
-            };
-            let next_slot_card = game_ui_controller.get_card_id(&next_slot);
-            ui.texture = textures[next_slot.id].clone();
-            game_ui_controller.current_cards.remove(&slot);
-            game_ui_controller
-                .current_cards
-                .insert(slot.clone(), next_slot_card);
-            *visibility = match next_slot_card {
-                Some(_) => Visibility::Visible,
-                None => Visibility::Hidden,
-            }
-        }
-    }
-
-    game_ui_controller.take_card_actions.clear();
+    game_ui_controller.card_modifications.clear();
 }
 
 fn spawn_game_ui_controller(mut commands: Commands, cards: Res<Assets<Card>>) {
-    commands.spawn(GameUIController::new(&cards));
+    commands.spawn(GameController::new(&cards));
 }
 
 pub struct GameUiControllerPlugin;
@@ -255,6 +279,6 @@ impl Plugin for GameUiControllerPlugin {
             OnEnter(LoadState::Loaded),
             (spawn_game_ui_controller, spawn_game_ui),
         )
-        .add_systems(Update, (set_cards_main, take_cards, damage_cards));
+        .add_systems(Update, apply_card_modifications);
     }
 }
