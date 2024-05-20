@@ -161,6 +161,9 @@ fn play_card(
                 }
                 match *interaction {
                     Interaction::Pressed => {
+                        if game_ui_controller.get_card_id(slot).is_some() {
+                            return;
+                        }
                         game_ui_controller.push_card_at(slot.clone(), card, stats.clone());
                         *custom_cursor = CustomCursor::Default;
                         turn_state.set(TurnState::ApplyMoves);
