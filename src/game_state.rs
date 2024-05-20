@@ -41,10 +41,6 @@ pub struct CardSlot {
     pub slot_type: CardSlotType,
 }
 
-// TODO: rework systems to not have this hack
-#[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect, Debug)]
-pub struct ButtonCardSlot(pub CardSlot);
-
 #[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect, Debug)]
 pub struct CardStats {
     pub hp: Option<u32>,
@@ -61,6 +57,9 @@ pub struct RedHealthMarker;
 
 #[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect)]
 pub struct BlueHealthMarker;
+
+#[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect)]
+pub struct CardSlotMarker;
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, States, Reflect)]
 pub enum TurnState {

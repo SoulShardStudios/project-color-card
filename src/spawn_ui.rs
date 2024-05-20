@@ -2,7 +2,7 @@ use crate::cards::{get_card_back_image, CardBack, CardBackType};
 use crate::constants::CARD_SLOT_COUNT;
 
 use crate::game_state::{
-    BlueHealthMarker, ButtonCardSlot, CardDeckMarker, CardSlot, CardSlotType, CardStats,
+    BlueHealthMarker, CardDeckMarker, CardSlot, CardSlotMarker, CardSlotType, CardStats,
     DiscardMarker, NextTurnCardType, RedHealthMarker, Team,
 };
 use bevy::prelude::*;
@@ -154,7 +154,7 @@ fn spawn_slots_for_team<'a>(
                         },
                         ..default()
                     })
-                    .insert(ButtonCardSlot(slot.clone()))
+                    .insert(CardSlotMarker)
                     .with_children(|parent| {
                         parent
                             .spawn(ImageBundle {
@@ -169,66 +169,51 @@ fn spawn_slots_for_team<'a>(
                             .insert(slot)
                             .insert(CardStats { hp: None })
                             .with_children(|parent| {
-                                parent.spawn(TextBundle {
-                                    style: Style {
-                                        left: Val::Percent(0.1 * 100.0),
-                                        top: Val::Percent(0.6274509803921569 * 100.0),
-                                        width: Val::Percent(80.0),
-                                        height: Val::Percent(37.254901960784316),
-                                        position_type: PositionType::Absolute,
+                                parent
+                                    .spawn(NodeBundle {
+                                        style: Style {
+                                            left: Val::Percent(0.1 * 100.0),
+                                            top: Val::Percent(0.6274509803921569 * 100.0),
+                                            width: Val::Percent(80.0),
+                                            height: Val::Percent(37.254901960784316),
+                                            position_type: PositionType::Absolute,
+                                            ..default()
+                                        },
                                         ..default()
-                                    },
-                                    text: Text {
-                                        sections: vec![TextSection {
-                                            style: TextStyle {
+                                    })
+                                    .with_children(|parent| {
+                                        parent.spawn(TextBundle::from_section(
+                                            "",
+                                            TextStyle {
                                                 font: font.clone(),
-                                                color: Color::Rgba {
-                                                    red: 0.0,
-                                                    green: 0.0,
-                                                    blue: 0.0,
-                                                    alpha: 1.0,
-                                                },
-                                                font_size: 7.0,
+                                                font_size: 20.0,
                                                 ..default()
                                             },
-                                            value: "".to_string(),
-                                        }],
-                                        linebreak_behavior: bevy::text::BreakLineOn::AnyCharacter,
-                                        ..default()
-                                    },
+                                        ));
+                                    });
 
-                                    ..default()
-                                });
-                                parent.spawn(TextBundle {
-                                    style: Style {
-                                        right: Val::Percent(8.0 / 72.0),
-                                        top: Val::Percent(8.0 / 102.0),
-                                        width: Val::Percent((19.0 - 8.0) / 72.0),
-                                        height: Val::Percent((15.0 - 8.0) / 102.0),
-                                        position_type: PositionType::Absolute,
+                                parent
+                                    .spawn(NodeBundle {
+                                        style: Style {
+                                            right: Val::Percent(8.0 / 72.0),
+                                            top: Val::Percent(8.0 / 102.0),
+                                            width: Val::Percent((19.0 - 8.0) / 72.0),
+                                            height: Val::Percent((15.0 - 8.0) / 102.0),
+                                            position_type: PositionType::Absolute,
+                                            ..default()
+                                        },
                                         ..default()
-                                    },
-                                    text: Text {
-                                        sections: vec![TextSection {
-                                            style: TextStyle {
+                                    })
+                                    .with_children(|parent| {
+                                        parent.spawn(TextBundle::from_section(
+                                            "",
+                                            TextStyle {
                                                 font: font.clone(),
-                                                color: Color::Rgba {
-                                                    red: 0.0,
-                                                    green: 0.0,
-                                                    blue: 0.0,
-                                                    alpha: 1.0,
-                                                },
-                                                font_size: 7.0,
+                                                font_size: 20.0,
                                                 ..default()
                                             },
-                                            value: "".to_string(),
-                                        }],
-                                        linebreak_behavior: bevy::text::BreakLineOn::AnyCharacter,
-                                        ..default()
-                                    },
-
-                                    ..default()
-                                });
+                                        ));
+                                    });
                             });
                     });
             }

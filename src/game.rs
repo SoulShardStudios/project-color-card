@@ -4,8 +4,8 @@ use crate::cards::{
 };
 use crate::custom_cursor::{CustomCursor, CustomCursorPlugin};
 use crate::game_state::{
-    ButtonCardSlot, CardDeckMarker, CardSlot, CardSlotType, CurrentTurnTeam, NextTurnCardType,
-    Team, TurnState,
+    CardDeckMarker, CardSlot, CardSlotMarker, CardSlotType, CardStats, CurrentTurnTeam,
+    NextTurnCardType, Team, TurnState,
 };
 use crate::game_ui_controller::{GameUIController, GameUiControllerPlugin};
 use bevy::prelude::*;
@@ -46,12 +46,26 @@ pub fn draw_card(
                     &cards,
                     current_card_type_state.get().0.clone(),
                 );
-                game_ui_controller.push_card_at(
-                    CardSlotType::Hand,
-                    current_turn_team.0,
-                    random_card_of_type.unwrap(),
-                    None,
-                );
+                let random_card_asset = cards.get(random_card_of_type).unwrap();
+                match game_ui_controller
+                    .get_first_open_slot(current_turn_team.0, CardSlotType::Hand)
+                {
+                    Some(x) => {
+                        game_ui_controller.push_card_at(
+                            CardSlot {
+                                id: x,
+                                team: current_turn_team.0,
+                                slot_type: CardSlotType::Hand,
+                            },
+                            random_card_of_type,
+                            CardStats {
+                                hp: random_card_asset.hp,
+                            },
+                        );
+                    }
+                    None => {}
+                }
+
                 // TODO: RE ENABLE WHEN ALL CARD TYPES ARE PRESENT: CardType::from_i8(rng.gen_range(0..4)).unwrap();
                 let new_card_type = match rng.gen_range(0..2) {
                     0 => CardType::Beast,
@@ -78,9 +92,11 @@ fn play_card(
     mut game_ui_controller_query: Query<&mut GameUIController>,
     mut custom_cursor_query: Query<&mut CustomCursor>,
     mut interaction_query: Query<
-        (&Interaction, &ButtonCardSlot),
-        (Changed<Interaction>, With<Button>, With<ButtonCardSlot>),
+        (&Interaction, Entity),
+        (Changed<Interaction>, With<Button>, With<CardSlotMarker>),
     >,
+    card_slot_query: Query<(&CardSlot, &CardStats)>,
+    children_query: Query<&Children>,
     current_turn_state: Res<State<TurnState>>,
     mut turn_state: ResMut<NextState<TurnState>>,
     current_turn_team: Res<State<CurrentTurnTeam>>,
@@ -104,20 +120,25 @@ fn play_card(
             return;
         }
     };
-    match custom_cursor.get_current_card() {
+    match custom_cursor.clone() {
         // pick up card and set custom cursor
-        None => {
-            for (interaction, slot) in &mut interaction_query {
-                if !(slot.0.team == current_turn_team.get().0
-                    && slot.0.slot_type == CardSlotType::Hand)
+        CustomCursor::Default => {
+            for (interaction, entity) in &mut interaction_query {
+                let (slot, stats) = card_slot_query
+                    .get(children_query.iter_descendants(entity).nth(0).unwrap())
+                    .unwrap();
+                if !(slot.team == current_turn_team.get().0 && slot.slot_type == CardSlotType::Hand)
                 {
                     continue;
                 }
                 match *interaction {
-                    Interaction::Pressed => match game_ui_controller.get_card_id(&slot.0) {
+                    Interaction::Pressed => match game_ui_controller.get_card_id(&slot) {
                         Some(card) => {
-                            *custom_cursor = CustomCursor::Card(card);
-                            game_ui_controller.take_card(&slot.0);
+                            *custom_cursor = CustomCursor::Card {
+                                card: card,
+                                stats: stats.clone(),
+                            };
+                            game_ui_controller.take_card(&slot);
                         }
                         _ => {}
                     },
@@ -126,21 +147,18 @@ fn play_card(
             }
         }
         // place custom cursor down in play and adjust slots
-        Some(cursor_card) => {
-            for (interaction, slot) in &mut interaction_query {
-                if !(slot.0.team == current_turn_team.get().0
-                    && slot.0.slot_type == CardSlotType::Play)
+        CustomCursor::Card { card, stats } => {
+            for (interaction, entity) in &mut interaction_query {
+                let (slot, stats) = card_slot_query
+                    .get(children_query.iter_descendants(entity).nth(0).unwrap())
+                    .unwrap();
+                if !(slot.team == current_turn_team.get().0 && slot.slot_type == CardSlotType::Play)
                 {
                     continue;
                 }
                 match *interaction {
                     Interaction::Pressed => {
-                        game_ui_controller.push_card_at(
-                            slot.0.slot_type,
-                            slot.0.team,
-                            cursor_card,
-                            Some(slot.0.id),
-                        );
+                        game_ui_controller.push_card_at(slot.clone(), card, stats.clone());
                         *custom_cursor = CustomCursor::Default;
                         turn_state.set(TurnState::ApplyMoves);
                     }

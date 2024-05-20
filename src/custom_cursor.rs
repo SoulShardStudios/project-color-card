@@ -1,21 +1,16 @@
 use crate::assets::LoadState;
 use crate::cards::Card;
+use crate::game_state::CardStats;
 use bevy::prelude::*;
 
 #[derive(Component, Default, Clone)]
 pub enum CustomCursor {
     #[default]
     Default,
-    Card(AssetId<Card>),
-}
-
-impl CustomCursor {
-    pub fn get_current_card(&self) -> Option<AssetId<Card>> {
-        match self {
-            CustomCursor::Card(x) => Some(*x),
-            _ => None,
-        }
-    }
+    Card {
+        card: AssetId<Card>,
+        stats: CardStats,
+    },
 }
 
 fn spawn_custom_cursor(mut commands: Commands, mut window: Query<&mut Window>) {
@@ -62,8 +57,11 @@ fn manage_custom_cursor_asset(
         }
     };
     match cursor.to_owned() {
-        CustomCursor::Card(x) => {
-            match cards.get(x) {
+        CustomCursor::Card {
+            card,
+            stats: cursor_stats,
+        } => {
+            match cards.get(card) {
                 Some(x) => image.texture = x.image_handle.clone(),
                 None => {}
             };
