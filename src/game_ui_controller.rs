@@ -27,10 +27,11 @@ enum ModifyCardAction {
 
 #[derive(Component)]
 pub struct GameController {
-    pub team_health: BTreeMap<Team, u32>,
+    team_health: BTreeMap<Team, u32>,
     current_cards: BTreeMap<CardSlot, Option<(AssetId<Card>, CardStats)>>,
     valid_new_cards: Vec<AssetId<Card>>,
     card_modifications: Vec<ModifyCardAction>,
+    team_health_updated: bool,
 }
 
 impl GameController {
@@ -61,7 +62,18 @@ impl GameController {
             current_cards: card_names,
             valid_new_cards,
             card_modifications: vec![],
+            team_health_updated: false,
         }
+    }
+
+    pub fn get_team_health(&self, team: Team) -> u32 {
+        return self.team_health[&team];
+    }
+
+    pub fn set_team_health(&mut self, team: Team, health: u32) {
+        self.team_health_updated = true;
+        self.team_health.remove(&team);
+        self.team_health.insert(team, health);
     }
 
     pub fn card_stack_full(&self, team: Team, slot_type: CardSlotType) -> bool {
@@ -234,7 +246,7 @@ fn apply_card_modifications(
                     .filter(|(x, _, _, _, _)| **x == slot)
                     .nth(0)
                 {
-                    Some((slot, _, mut image, mut visibility, entity)) => {
+                    Some((_, _, mut image, mut visibility, entity)) => {
                         let card_asset = cards.get(card).unwrap();
                         image.texture = card_asset.image_handle.clone();
                         *visibility = Visibility::Visible;

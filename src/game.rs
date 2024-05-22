@@ -189,6 +189,9 @@ fn apply_moves(
             return;
         }
     };
+    let team_health = game_ui_controller
+        .get_team_health(current_turn_team.get().0)
+        .clone();
     if *current_turn_state.get() != TurnState::ApplyMoves {
         return;
     }
@@ -211,18 +214,14 @@ fn apply_moves(
             (Some(current), Some(_)) => {
                 game_ui_controller.damage_card(foe_slot, current.damage.unwrap_or(0))
             }
-            (None, Some(foe)) => {
-                *game_ui_controller
-                    .team_health
-                    .get_mut(&current_turn_team.get().0)
-                    .unwrap() -= foe.damage.unwrap_or(0)
-            }
-            (Some(current), None) => {
-                *game_ui_controller
-                    .team_health
-                    .get_mut(&!current_turn_team.get().0)
-                    .unwrap() -= current.damage.unwrap_or(0)
-            }
+            (None, Some(foe)) => game_ui_controller.set_team_health(
+                current_turn_team.get().0,
+                team_health - foe.damage.unwrap_or(0),
+            ),
+            (Some(current), None) => game_ui_controller.set_team_health(
+                current_turn_team.get().0,
+                team_health - current.damage.unwrap_or(0),
+            ),
             _ => {}
         }
     }
