@@ -51,7 +51,7 @@ pub fn draw_card(
                     .get_first_open_slot(current_turn_team.0, CardSlotType::Hand)
                 {
                     Some(x) => {
-                        game_ui_controller.push_card_at(
+                        game_ui_controller.push_card_into_stack(
                             CardSlot {
                                 id: x,
                                 team: current_turn_team.0,
@@ -139,7 +139,7 @@ fn play_card(
                                 card: card.0,
                                 stats: stats.clone(),
                             };
-                            game_ui_controller.take_card(&slot);
+                            game_ui_controller.take_card(slot.clone());
                         }
                         _ => {}
                     },
@@ -162,10 +162,7 @@ fn play_card(
                 }
                 match *interaction {
                     Interaction::Pressed => {
-                        if game_ui_controller.get_card(slot).is_some() {
-                            return;
-                        }
-                        game_ui_controller.push_card_at(slot.clone(), card, stats.clone());
+                        game_ui_controller.push_card_into_stack(slot.clone(), card, stats.clone());
                         game_ui_controller.stack_cards(slot.team, slot.slot_type);
                         *custom_cursor = CustomCursor::Default;
                         turn_state.set(TurnState::ApplyMoves);

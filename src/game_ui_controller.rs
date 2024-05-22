@@ -101,11 +101,11 @@ impl GameController {
         self.current_cards.insert(slot, Some((card, stats)));
     }
 
-    pub fn take_card(&mut self, slot: &CardSlot) {
+    pub fn take_card(&mut self, slot: CardSlot) {
         self.card_modifications
             .push(ModifyCardAction::Remove { slot: slot.clone() });
         self.current_cards.remove(&slot);
-        self.current_cards.insert(slot.clone(), None);
+        self.current_cards.insert(slot, None);
     }
 
     pub fn damage_card(&mut self, slot: &CardSlot, damage: u32) {
@@ -137,14 +137,47 @@ impl GameController {
         }
     }
 
-    pub fn stack_cards(&mut self, team: Team, slot_type: CardSlotType) {
-        let bruh: Vec<_> = self
-            .current_cards
+    fn _clone_iter_current(
+        &mut self,
+        team: Team,
+        slot_type: CardSlotType,
+    ) -> Vec<(CardSlot, Option<(AssetId<Card>, CardStats)>)> {
+        self.current_cards
             .iter()
             .filter(|(slot, _)| slot.team == team && slot.slot_type == slot_type)
             .map(|(x, y)| (x.clone(), y.clone()))
-            .collect();
-        for (slot, card) in bruh {
+            .collect()
+    }
+
+    pub fn push_card_into_stack(&mut self, slot: CardSlot, card: AssetId<Card>, stats: CardStats) {
+        let first_slot = self.get_first_open_slot(slot.team, slot.slot_type);
+        if first_slot.is_none() {
+            return;
+        }
+        let mut last_card: Option<(AssetId<Card>, CardStats)> = None;
+        for (iter_slot, iter_card) in self._clone_iter_current(slot.team, slot.slot_type) {
+            let slot = slot.clone();
+            if iter_slot.id < slot.id {
+                continue;
+            }
+            if slot.id == iter_slot.id {
+                self.push_card_at(slot, card, stats.clone());
+                last_card = iter_card.clone();
+                continue;
+            }
+            let last_card_unwrapped = match last_card {
+                Some(x) => x,
+                None => {
+                    break;
+                }
+            };
+            self.push_card_at(iter_slot, last_card_unwrapped.0, last_card_unwrapped.1);
+            last_card = iter_card;
+        }
+    }
+
+    pub fn stack_cards(&mut self, team: Team, slot_type: CardSlotType) {
+        for (slot, card) in self._clone_iter_current(team, slot_type) {
             let first_open = match self.get_first_open_slot(team, slot_type) {
                 Some(x) => x,
                 None => {
@@ -158,21 +191,16 @@ impl GameController {
                 }
             };
             if slot.id > first_open {
-                let first_open_slot = CardSlot {
-                    id: first_open,
-                    team: slot.team,
-                    slot_type: slot.slot_type,
-                };
-                self.card_modifications.push(ModifyCardAction::Push {
-                    slot: first_open_slot.clone(),
-                    card: card.0,
-                    stats: card.1.clone(),
-                });
-                self.card_modifications
-                    .push(ModifyCardAction::Remove { slot: slot.clone() });
-                self.current_cards.remove(&slot);
-                self.current_cards
-                    .insert(first_open_slot, Some((card.0, card.1.clone())));
+                self.push_card_at(
+                    CardSlot {
+                        id: first_open,
+                        team: slot.team,
+                        slot_type: slot.slot_type,
+                    },
+                    card.0,
+                    card.1.clone(),
+                );
+                self.take_card(slot);
             }
         }
     }
@@ -206,7 +234,7 @@ fn apply_card_modifications(
                     .filter(|(x, _, _, _, _)| **x == slot)
                     .nth(0)
                 {
-                    Some((_, _, mut image, mut visibility, entity)) => {
+                    Some((slot, _, mut image, mut visibility, entity)) => {
                         let card_asset = cards.get(card).unwrap();
                         image.texture = card_asset.image_handle.clone();
                         *visibility = Visibility::Visible;
@@ -223,7 +251,7 @@ fn apply_card_modifications(
                             }
                         }
                     }
-                    _ => {}
+                    None => {}
                 }
             }
             ModifyCardAction::Remove { slot } => {
@@ -258,7 +286,7 @@ fn apply_card_modifications(
                     _ => {}
                 }
                 match slots_to_take {
-                    Some(x) => game_ui_controller.take_card(&x),
+                    Some(x) => game_ui_controller.take_card(x),
                     None => {}
                 }
             }
