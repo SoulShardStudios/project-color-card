@@ -43,7 +43,7 @@ pub struct CardSlot {
 
 #[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect, Debug)]
 pub struct CardStats {
-    pub hp: u32,
+    pub hp: Option<u32>,
 }
 
 #[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect)]
@@ -51,6 +51,15 @@ pub struct CardDeckMarker;
 
 #[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect)]
 pub struct DiscardMarker;
+
+#[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect)]
+pub struct RedHealthMarker;
+
+#[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect)]
+pub struct BlueHealthMarker;
+
+#[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect)]
+pub struct CardSlotMarker;
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, States, Reflect)]
 pub enum TurnState {
