@@ -1,0 +1,7 @@
+Card(
+    name: "Banshee",
+    colors: [Green, Purple, Teal],
+    card_type: Hero,
+    text: "",
+    image: "cards/Banshee.png"
+)

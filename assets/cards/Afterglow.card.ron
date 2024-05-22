@@ -1,0 +1,7 @@
+Card(
+    name: "Afterglow",
+    colors: [Teal, Green, Purple],
+    card_type: Hero,
+    text: "",
+    image: "cards/Afterglow.png"
+)

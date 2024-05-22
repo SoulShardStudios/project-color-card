@@ -1,0 +1,7 @@
+Card(
+    name: "Compost",
+    colors: [Teal, Green],
+    card_type: Hero,
+    text: "",
+    image: "cards/Compost.png"
+)

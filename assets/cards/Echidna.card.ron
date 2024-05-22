@@ -1,0 +1,7 @@
+Card(
+    name: "Echidna",
+    colors: [Yellow, Teal, Red],
+    card_type: Beast,
+    text: "",
+    image: "cards/Echidna.png"
+)
