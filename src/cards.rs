@@ -51,6 +51,8 @@ pub struct Card {
     image: String,
     #[serde(skip)]
     pub image_handle: Handle<Image>,
+    pub damage: Option<u32>,
+    pub hp: Option<u32>,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
@@ -84,3 +86,15 @@ create_ron_nested_asset_loader!(
     image -> image_handle,
     card_back_assets
 );
+
+pub fn get_card_back_image(
+    card_backs: &Res<Assets<CardBack>>,
+    back_type: CardBackType,
+) -> Handle<Image> {
+    return card_backs
+        .iter()
+        .filter(|(_, back)| back.card_type == back_type)
+        .nth(0)
+        .map(|x| x.1.image_handle.clone())
+        .unwrap_or(Handle::default());
+}

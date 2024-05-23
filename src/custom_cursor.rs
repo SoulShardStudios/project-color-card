@@ -1,40 +1,19 @@
 use crate::assets::LoadState;
 use crate::cards::Card;
+use crate::game_state::CardStats;
 use bevy::prelude::*;
 
-#[derive(Default, Clone)]
-enum CustomCursorData {
+#[derive(Component, Default, Clone)]
+pub enum CustomCursor {
     #[default]
     Default,
-    Card(AssetId<Card>),
+    Card {
+        card: AssetId<Card>,
+        stats: CardStats,
+    },
 }
 
-#[derive(Component)]
-pub struct CustomCursor {
-    current_cursor: CustomCursorData,
-}
-
-impl CustomCursor {
-    pub fn new() -> Self {
-        Self {
-            current_cursor: CustomCursorData::Default,
-        }
-    }
-    pub fn set_default(&mut self) {
-        self.current_cursor = CustomCursorData::Default;
-    }
-    pub fn set_card(&mut self, card: AssetId<Card>) {
-        self.current_cursor = CustomCursorData::Card(card);
-    }
-    pub fn get_current_card(&self) -> Option<AssetId<Card>> {
-        match self.current_cursor {
-            CustomCursorData::Card(x) => Some(x),
-            _ => None,
-        }
-    }
-}
-
-fn spawn_custom_cursor(mut commands: Commands) {
+fn spawn_custom_cursor(mut commands: Commands, mut window: Query<&mut Window>) {
     commands
         .spawn(ImageBundle {
             style: Style {
@@ -44,9 +23,11 @@ fn spawn_custom_cursor(mut commands: Commands) {
             },
             ..default()
         })
-        .insert(CustomCursor {
-            current_cursor: CustomCursorData::Default,
-        });
+        .insert(CustomCursor::Default);
+    match window.get_single_mut() {
+        Ok(mut x) => x.cursor.visible = false,
+        _ => {}
+    }
 }
 
 fn move_custom_cursor(
@@ -65,33 +46,32 @@ fn move_custom_cursor(
 }
 
 fn manage_custom_cursor_asset(
-    mut custom_cursor_query: Query<(&mut CustomCursor, &mut UiImage)>,
-    mut window: Query<&mut Window>,
+    mut custom_cursor_query: Query<(&mut CustomCursor, &mut UiImage, &mut Style)>,
     cards: Res<Assets<Card>>,
+    assets: Res<AssetServer>,
 ) {
-    let (cursor, mut image) = match custom_cursor_query.get_single_mut() {
+    let (cursor, mut image, mut style) = match custom_cursor_query.get_single_mut() {
         Ok(x) => x,
         _ => {
             return;
         }
     };
-    match cursor.current_cursor {
-        CustomCursorData::Card(x) => {
-            match cards.get(x) {
+    match cursor.to_owned() {
+        CustomCursor::Card {
+            card,
+            stats: _cursor_stats,
+        } => {
+            match cards.get(card) {
                 Some(x) => image.texture = x.image_handle.clone(),
                 None => {}
-            }
-            match window.get_single_mut() {
-                Ok(mut x) => x.cursor.visible = false,
-                _ => {}
             };
+            (*style).width = Val::Px(72.0);
+            (*style).aspect_ratio = Some(72.0 / 102.0);
         }
-        CustomCursorData::Default => {
-            image.texture = Handle::default();
-            match window.get_single_mut() {
-                Ok(mut x) => x.cursor.visible = true,
-                _ => {}
-            };
+        CustomCursor::Default => {
+            image.texture = assets.load("ui/Cursor.png");
+            (*style).width = Val::Px(21.0);
+            (*style).aspect_ratio = Some(21.0 / 27.0);
         }
     }
 }
