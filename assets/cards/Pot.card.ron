@@ -2,6 +2,6 @@ Card(
     name: "Pot",
     colors: [Blue, Green],
     card_type: Equipment,
-    text: "",
+    text: "What's cooking?",
     image: "cards/Pot.png"
 )

@@ -2,6 +2,6 @@ Card(
     name: "Corpse",
     colors: [Yellow, Teal],
     card_type: Equipment,
-    text: "",
+    text: "Man, I liked that guy",
     image: "cards/Corpse.png",
 )

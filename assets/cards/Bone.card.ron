@@ -2,6 +2,6 @@ Card(
     name: "Bone",
     colors: [Teal, Yellow],
     card_type: Equipment,
-    text: "",
+    text: "Ikea skeleton step one",
     image: "cards/Bone.png"
 )

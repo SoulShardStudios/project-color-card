@@ -2,6 +2,6 @@ Card(
     name: "Flame",
     colors: [Yellow, Red],
     card_type: Equipment,
-    text: "",
+    text: "Ow! Ow! Ow!",
     image: "cards/Flame.png"
 )

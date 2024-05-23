@@ -2,6 +2,6 @@ Card(
     name: "Pouch",
     colors: [Green, Red],
     card_type: Equipment,
-    text: "",
+    text: "For holding things",
     image: "cards/Pouch.png",
 )

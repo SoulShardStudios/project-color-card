@@ -2,6 +2,6 @@ Card(
     name: "Feather",
     colors: [Purple, Yellow],
     card_type: Equipment,
-    text: "",
+    text: "Tickle Tickle!",
     image: "cards/Feather.png"
 )

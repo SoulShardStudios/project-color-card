@@ -2,6 +2,6 @@ Card(
     name: "Battery",
     colors: [Red, Blue],
     card_type: Equipment,
-    text: "",
+    text: "It's electric",
     image: "cards/Battery.png"
 )

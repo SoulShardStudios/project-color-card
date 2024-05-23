@@ -2,6 +2,6 @@ Card(
     name: "Tree",
     colors: [Yellow, Green],
     card_type: Equipment,
-    text: "",
+    text: "Like, the wood kind",
     image: "cards/Tree.png"
 )

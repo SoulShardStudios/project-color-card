@@ -2,6 +2,6 @@ Card(
     name: "Elixir",
     colors: [Teal, Purple],
     card_type: Equipment,
-    text: "",
+    text: "Can someone lable these bottles?",
     image: "cards/Elixir.png"
 )

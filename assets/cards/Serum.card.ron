@@ -2,6 +2,6 @@ Card(
     name: "Serum",
     colors: [Teal, Red],
     card_type: Equipment,
-    text: "",
+    text: "Don't use random needles!",
     image: "cards/Serum.png"
 )
