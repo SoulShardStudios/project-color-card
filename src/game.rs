@@ -206,8 +206,9 @@ fn apply_moves(
             .get_card(foe_slot)
             .map(|x| cards.get(x.0).unwrap());
         match (current_card, foe_card) {
-            (Some(current), Some(_)) => {
-                game_ui_controller.damage_card(foe_slot, current.damage.unwrap_or(0))
+            (Some(current), Some(foe)) => {
+                game_ui_controller.damage_card(foe_slot, current.damage.unwrap_or(0));
+                game_ui_controller.damage_card(current_slot, foe.damage.unwrap_or(0));
             }
             (None, Some(foe)) => game_ui_controller.set_team_health(
                 current_turn_team.get().0,

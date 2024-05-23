@@ -172,8 +172,8 @@ fn spawn_slots_for_team<'a>(
                                 parent
                                     .spawn(NodeBundle {
                                         style: Style {
-                                            left: Val::Percent(0.1 * 100.0),
-                                            top: Val::Percent(0.6274509803921569 * 100.0),
+                                            left: Val::Percent(10.0),
+                                            top: Val::Percent(62.74509803921569),
                                             width: Val::Percent(80.0),
                                             height: Val::Percent(37.254901960784316),
                                             position_type: PositionType::Absolute,
@@ -186,7 +186,7 @@ fn spawn_slots_for_team<'a>(
                                             "",
                                             TextStyle {
                                                 font: font.clone(),
-                                                font_size: 7.0,
+                                                font_size: 10.0,
                                                 color: Color::Rgba {
                                                     red: 0.0,
                                                     green: 0.0,
@@ -201,10 +201,10 @@ fn spawn_slots_for_team<'a>(
                                 parent
                                     .spawn(NodeBundle {
                                         style: Style {
-                                            right: Val::Percent(8.0 / 72.0),
-                                            top: Val::Percent(8.0 / 102.0),
-                                            width: Val::Percent((19.0 - 8.0) / 72.0),
-                                            height: Val::Percent((15.0 - 8.0) / 102.0),
+                                            left: Val::Percent(8.0 / 72.0 * 100.0),
+                                            top: Val::Percent(8.0 / 102.0 * 100.0),
+                                            width: Val::Percent(19.0 / 72.0 * 100.0),
+                                            height: Val::Percent(15.0 / 102.0 * 100.0),
                                             position_type: PositionType::Absolute,
                                             ..default()
                                         },
@@ -215,11 +215,11 @@ fn spawn_slots_for_team<'a>(
                                             "",
                                             TextStyle {
                                                 font: font.clone(),
-                                                font_size: 7.0,
+                                                font_size: 13.0,
                                                 color: Color::Rgba {
-                                                    red: 0.0,
-                                                    green: 0.0,
-                                                    blue: 0.0,
+                                                    red: 1.0,
+                                                    green: 1.0,
+                                                    blue: 1.0,
                                                     alpha: 1.0,
                                                 },
                                                 ..default()
