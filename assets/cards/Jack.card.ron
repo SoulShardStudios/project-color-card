@@ -2,7 +2,7 @@ Card(
     name: "Jack",
     colors: [Purple, Red],
     card_type: Beast,
-    text: "",
+    text: "In the box",
     image: "cards/Jack.png",
     damage: Some(1),
     hp: Some(1),

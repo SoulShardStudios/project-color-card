@@ -2,7 +2,7 @@ Card(
     name: "Moth",
     colors: [Green, Teal],
     card_type: Beast,
-    text: "",
+    text: "Light Seeker",
     image: "cards/Moth.png",
     damage: Some(1),
     hp: Some(1),

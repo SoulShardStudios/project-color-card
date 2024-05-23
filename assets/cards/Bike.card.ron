@@ -2,7 +2,7 @@ Card(
     name: "Bike",
     colors: [Blue, Yellow],
     card_type: Beast,
-    text: "",
+    text: "Vroom Vroom",
     image: "cards/Bike.png",
     damage: Some(1),
     hp: Some(1),
