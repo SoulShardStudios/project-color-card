@@ -1,0 +1,7 @@
+Card(
+    name: "Tracktor",
+    colors: [Blue, Yellow, Green],
+    card_type: Beast,
+    text: "",
+    image: "cards/Tracktor.png"
+)

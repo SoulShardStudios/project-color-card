@@ -1,0 +1,7 @@
+Card(
+    name: "Outmode",
+    colors: [Blue, Yellow, Teal],
+    card_type: Hero,
+    text: "",
+    image: "cards/Outmode.png"
+)

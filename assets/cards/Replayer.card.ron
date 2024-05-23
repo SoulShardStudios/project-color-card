@@ -1,0 +1,7 @@
+Card(
+    name: "Replayer",
+    colors: [Blue, Purple, Teal],
+    card_type: Beast,
+    text: "",
+    image: "cards/Replayer.png"
+)

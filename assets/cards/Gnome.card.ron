@@ -1,0 +1,7 @@
+Card(
+    name: "Gnome",
+    colors: [Green, Blue],
+    card_type: Hero,
+    text: "",
+    image: "cards/Gnome.png"
+)

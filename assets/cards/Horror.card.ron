@@ -1,0 +1,7 @@
+Card(
+    name: "Horror",
+    colors: [Red, Purple, Teal],
+    card_type: Hero,
+    text: "",
+    image: "cards/Horror.png"
+)

@@ -1,0 +1,7 @@
+Card(
+    name: "Tanuki",
+    colors: [Teal, Red, Purple],
+    card_type: Beast,
+    text: "",
+    image: "cards/Tanuki.png"
+)

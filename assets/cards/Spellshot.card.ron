@@ -1,0 +1,7 @@
+Card(
+    name: "Spellshot",
+    colors: [Blue, Purple, Red],
+    card_type: Hero,
+    text: "",
+    image: "cards/Spellshot.png"
+)

@@ -1,0 +1,7 @@
+Card(
+    name: "Mirror",
+    colors: [Purple, Teal],
+    card_type: Equipment,
+    text: "",
+    image: "cards/Mirror.png"
+)

@@ -1,0 +1,7 @@
+Card(
+    name: "Hat",
+    colors: [Red, Purple],
+    card_type: Equipment,
+    text: "",
+    image: "cards/Hat.png"
+)

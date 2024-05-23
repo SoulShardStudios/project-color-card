@@ -1,0 +1,7 @@
+Card(
+    name: "Portal",
+    colors: [Blue, Purple, Yellow],
+    card_type: Beast,
+    text: "",
+    image: "cards/Poison.png"
+)

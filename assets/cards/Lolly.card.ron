@@ -1,0 +1,7 @@
+Card(
+    name: "Lolly",
+    colors: [Blue, Red],
+    card_type: Food,
+    text: "",
+    image: "cards/Lolly.png"
+)

@@ -1,0 +1,7 @@
+Card(
+    name: "Hologram",
+    colors: [Blue, Teal],
+    card_type: Beast,
+    text: "",
+    image: "cards/Hologram.png"
+)

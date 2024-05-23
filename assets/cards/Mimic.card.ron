@@ -1,0 +1,7 @@
+Card(
+    name: "Mimic",
+    colors: [Purple],
+    card_type: Beast,
+    text: "",
+    image: "cards/Mimic.png"
+)
