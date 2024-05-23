@@ -2,6 +2,6 @@ Card(
     name: "Skeleton",
     colors: [Teal],
     card_type: Hero,
-    text: "",
+    text: "Rattle Rattle",
     image: "cards/Skeleton.png"
 )

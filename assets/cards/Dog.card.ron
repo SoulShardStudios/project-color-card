@@ -2,6 +2,6 @@ Card(
     name: "Dog",
     colors: [Red],
     card_type: Beast,
-    text: "",
+    text: "Man's best friend",
     image: "cards/Dog.png"
 )

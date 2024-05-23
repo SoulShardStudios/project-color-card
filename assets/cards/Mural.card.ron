@@ -2,6 +2,6 @@ Card(
     name: "Mural",
     colors: [Yellow],
     card_type: Equipment,
-    text: "",
+    text: "The beauty seen through acient eyes",
     image: "cards/Mural.png"
 )

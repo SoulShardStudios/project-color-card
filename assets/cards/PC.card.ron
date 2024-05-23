@@ -2,6 +2,6 @@ Card(
     name: "PC",
     colors: [Blue],
     card_type: Beast,
-    text: "",
+    text: "You don't have the password",
     image: "cards/PC.png"
 )

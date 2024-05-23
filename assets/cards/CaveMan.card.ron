@@ -2,6 +2,6 @@ Card(
     name: "CaveMan",
     colors: [Yellow],
     card_type: Hero,
-    text: "",
+    text: "Ooga Booga",
     image: "cards/CaveMan.png"
 )

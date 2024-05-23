@@ -2,6 +2,6 @@ Card(
     name: "Mimic",
     colors: [Purple],
     card_type: Beast,
-    text: "",
+    text: "Less effective with a nametag",
     image: "cards/Mimic.png"
 )

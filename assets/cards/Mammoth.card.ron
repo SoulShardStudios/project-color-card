@@ -2,6 +2,6 @@ Card(
     name: "Mammoth",
     colors: [Yellow],
     card_type: Beast,
-    text: "",
+    text: "Prehistoric Megafauna",
     image: "cards/Mammoth.png"
 )

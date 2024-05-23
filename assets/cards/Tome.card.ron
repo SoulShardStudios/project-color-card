@@ -2,6 +2,6 @@ Card(
     name: "Tome",
     colors: [Purple],
     card_type: Equipment,
-    text: "",
+    text: "A book of spells",
     image: "cards/Tome.png"
 )

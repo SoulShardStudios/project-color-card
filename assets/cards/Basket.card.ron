@@ -2,6 +2,6 @@ Card(
     name: "Basket",
     colors: [Green],
     card_type: Equipment,
-    text: "",
+    text: "Time for a picnic?",
     image: "cards/Basket.png"
 )

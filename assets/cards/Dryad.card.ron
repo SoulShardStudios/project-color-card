@@ -2,6 +2,6 @@ Card(
     name: "Dryad",
     colors: [Green],
     card_type: Hero,
-    text: "",
+    text: "May nature heal you",
     image: "cards/Dryad.png"
 )

@@ -2,6 +2,6 @@ Card(
     name: "Hero",
     colors: [Red],
     card_type: Hero,
-    text: "",
+    text: "I'm here to help!",
     image: "cards/Hero.png"
 )
