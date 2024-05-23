@@ -2,7 +2,7 @@ Card(
     name: "Hunter",
     colors: [Yellow, Red],
     card_type: Hero,
-    text: "",
+    text: "I see dinner!",
     image: "cards/Hunter.png",
     damage: Some(1),
     hp: Some(1),

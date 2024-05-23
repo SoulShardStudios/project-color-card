@@ -2,7 +2,7 @@ Card(
     name: "Caster",
     colors: [Blue, Purple],
     card_type: Hero,
-    text: "",
+    text: "I can use magic now",
     image: "cards/Caster.png",
     damage: Some(1),
     hp: Some(1),

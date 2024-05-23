@@ -2,7 +2,7 @@ Card(
     name: "Compost",
     colors: [Teal, Green],
     card_type: Hero,
-    text: "",
+    text: "...",
     image: "cards/Compost.png",
     damage: Some(1),
     hp: Some(1),

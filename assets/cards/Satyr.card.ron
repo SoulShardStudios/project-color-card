@@ -2,7 +2,7 @@ Card(
     name: "Satyr",
     colors: [Green, Yellow],
     card_type: Hero,
-    text: "",
+    text: "Pan guide me",
     image: "cards/Satyr.png",
     damage: Some(1),
     hp: Some(1),

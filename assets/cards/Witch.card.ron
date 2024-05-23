@@ -2,7 +2,7 @@ Card(
     name: "Witch",
     colors: [Purple, Green],
     card_type: Hero,
-    text: "",
+    text: "Muhaha!",
     image: "cards/Witch.png",
     damage: Some(1),
     hp: Some(1),

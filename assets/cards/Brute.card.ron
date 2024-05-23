@@ -2,8 +2,8 @@ Card(
     name: "Brute",
     colors: [Red, Yellow],
     card_type: Hero,
-    text: "",
-    image: "cards/Brute.png",
+text: "Fight me!",
+    image: "cards/Brute.png"
     damage: Some(1),
     hp: Some(1),
 )

@@ -2,7 +2,7 @@ Card(
     name: "Zombie",
     colors: [Teal, Red],
     card_type: Hero,
-    text: "",
+    text: "Ruoaugh",
     image: "cards/Zombie.png",
     damage: Some(1),
     hp: Some(1),

@@ -2,7 +2,7 @@ Card(
     name: "Junk",
     colors: [Blue, Teal],
     card_type: Hero,
-    text: "",
+    text: "...",
     image: "cards/Junk.png",
     damage: Some(1),
     hp: Some(1),

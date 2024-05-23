@@ -2,7 +2,7 @@ Card(
     name: "Droid",
     colors: [Blue, Red],
     card_type: Hero,
-    text: "",
+    text: "Surrender!",
     image: "cards/Droid.png",
     damage: Some(1),
     hp: Some(1),

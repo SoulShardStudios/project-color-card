@@ -2,7 +2,7 @@ Card(
     name: "Fossil",
     colors: [Teal, Yellow],
     card_type: Hero,
-    text: "",
+    text: "Klak Klak Klak",
     image: "cards/Fossil.png",
     damage: Some(1),
     hp: Some(1),
