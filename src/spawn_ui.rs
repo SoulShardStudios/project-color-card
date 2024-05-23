@@ -167,7 +167,6 @@ fn spawn_slots_for_team<'a>(
                                 ..default()
                             })
                             .insert(slot)
-                            .insert(CardStats { hp: None })
                             .with_children(|parent| {
                                 parent
                                     .spawn(NodeBundle {

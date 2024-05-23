@@ -72,7 +72,6 @@ impl GameController {
 
     pub fn set_team_health(&mut self, team: Team, health: u32) {
         self.team_health_updated = true;
-        self.team_health.remove(&team);
         self.team_health.insert(team, health);
     }
 
@@ -103,20 +102,18 @@ impl GameController {
             .map(|(slot, _)| slot.id)
     }
 
-    pub fn push_card_at<'a>(&mut self, slot: CardSlot, card: AssetId<Card>, stats: CardStats) {
+    pub fn push_card_at(&mut self, slot: CardSlot, card: AssetId<Card>, stats: CardStats) {
         self.card_modifications.push(ModifyCardAction::Push {
             slot: slot.clone(),
             card: card,
             stats: stats.clone(),
         });
-        self.current_cards.remove(&slot);
         self.current_cards.insert(slot, Some((card, stats)));
     }
 
     pub fn take_card(&mut self, slot: CardSlot) {
         self.card_modifications
             .push(ModifyCardAction::Remove { slot: slot.clone() });
-        self.current_cards.remove(&slot);
         self.current_cards.insert(slot, None);
     }
 
@@ -221,13 +218,7 @@ impl GameController {
 fn apply_card_modifications(
     mut game_ui_controller_query: Query<&mut GameController>,
     cards: Res<Assets<Card>>,
-    mut query: Query<(
-        &CardSlot,
-        &mut CardStats,
-        &mut UiImage,
-        &mut Visibility,
-        Entity,
-    )>,
+    mut query: Query<(&CardSlot, &mut UiImage, &mut Visibility, Entity)>,
     child_query: Query<&mut Children>,
     mut text_query: Query<&mut Text>,
 ) {
@@ -241,12 +232,8 @@ fn apply_card_modifications(
     for modification in game_ui_controller.card_modifications.clone() {
         match modification {
             ModifyCardAction::Push { slot, card, stats } => {
-                match query
-                    .iter_mut()
-                    .filter(|(x, _, _, _, _)| **x == slot)
-                    .nth(0)
-                {
-                    Some((_, _, mut image, mut visibility, entity)) => {
+                match query.iter_mut().filter(|(x, _, _, _)| **x == slot).nth(0) {
+                    Some((_, mut image, mut visibility, entity)) => {
                         let card_asset = cards.get(card).unwrap();
                         image.texture = card_asset.image_handle.clone();
                         *visibility = Visibility::Visible;
@@ -267,34 +254,31 @@ fn apply_card_modifications(
                 }
             }
             ModifyCardAction::Remove { slot } => {
-                match query
-                    .iter_mut()
-                    .filter(|(x, _, _, _, _)| **x == slot)
-                    .nth(0)
-                {
+                match query.iter_mut().filter(|(x, _, _, _)| **x == slot).nth(0) {
                     Some(mut x) => {
-                        x.2.texture = Handle::default();
-                        *x.3 = Visibility::Hidden;
+                        x.1.texture = Handle::default();
+                        *x.2 = Visibility::Hidden;
                     }
                     _ => {}
                 }
             }
             ModifyCardAction::Damage { slot, damage } => {
                 let mut slots_to_take: Option<CardSlot> = None;
-                match query
-                    .iter_mut()
-                    .filter(|(x, _, _, _, _)| **x == slot)
-                    .nth(0)
-                {
-                    Some(mut x) => match &mut x.1.hp {
-                        Some(mut hp) => {
-                            hp = hp.saturating_sub(damage);
-                            if hp == 0 {
-                                slots_to_take = Some(slot.clone());
-                            }
+                match query.iter().filter(|(x, _, _, _)| **x == slot).nth(0) {
+                    Some((slot, _, _, _)) => {
+                        let card = game_ui_controller.get_card(slot).unwrap();
+                        if card.1.hp.is_some() && card.1.hp.map(|f| f - damage).unwrap() == 0 {
+                            slots_to_take = Some(slot.clone());
+                        } else {
+                            game_ui_controller.push_card_at(
+                                slot.clone(),
+                                card.0,
+                                CardStats {
+                                    hp: card.1.hp.map(|f| f - damage),
+                                },
+                            )
                         }
-                        None => {}
-                    },
+                    }
                     _ => {}
                 }
                 match slots_to_take {

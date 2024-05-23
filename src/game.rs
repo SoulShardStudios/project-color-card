@@ -91,7 +91,7 @@ fn play_card(
         (&Interaction, Entity),
         (Changed<Interaction>, With<Button>, With<CardSlotMarker>),
     >,
-    card_slot_query: Query<(&CardSlot, &CardStats)>,
+    card_slot_query: Query<&CardSlot>,
     children_query: Query<&Children>,
     current_turn_state: Res<State<TurnState>>,
     mut turn_state: ResMut<NextState<TurnState>>,
@@ -120,7 +120,7 @@ fn play_card(
         // pick up card and set custom cursor
         CustomCursor::Default => {
             for (interaction, entity) in &mut interaction_query {
-                let (slot, stats) = card_slot_query
+                let (slot) = card_slot_query
                     .get(children_query.iter_descendants(entity).nth(0).unwrap())
                     .unwrap();
                 if !(slot.team == current_turn_team.get().0 && slot.slot_type == CardSlotType::Hand)
@@ -132,7 +132,7 @@ fn play_card(
                         Some(card) => {
                             *custom_cursor = CustomCursor::Card {
                                 card: card.0,
-                                stats: stats.clone(),
+                                stats: game_ui_controller.get_card(slot).unwrap().1,
                             };
                             game_ui_controller.take_card(slot.clone());
                         }
@@ -148,7 +148,7 @@ fn play_card(
             stats: _stats,
         } => {
             for (interaction, entity) in &mut interaction_query {
-                let (slot, stats) = card_slot_query
+                let (slot) = card_slot_query
                     .get(children_query.iter_descendants(entity).nth(0).unwrap())
                     .unwrap();
                 if !(slot.team == current_turn_team.get().0 && slot.slot_type == CardSlotType::Play)
@@ -157,7 +157,11 @@ fn play_card(
                 }
                 match *interaction {
                     Interaction::Pressed => {
-                        game_ui_controller.push_card_into_stack(slot.clone(), card, stats.clone());
+                        let stats = match game_ui_controller.get_card(slot) {
+                            Some(x) => x.1.clone(),
+                            None => CardStats { hp: None },
+                        };
+                        game_ui_controller.push_card_into_stack(slot.clone(), card, stats);
                         game_ui_controller.stack_cards(slot.team, slot.slot_type);
                         *custom_cursor = CustomCursor::Default;
                         turn_state.set(TurnState::ApplyMoves);

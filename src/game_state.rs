@@ -41,7 +41,7 @@ pub struct CardSlot {
     pub slot_type: CardSlotType,
 }
 
-#[derive(Component, Clone, PartialEq, Eq, PartialOrd, Ord, Reflect, Debug)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Reflect, Debug)]
 pub struct CardStats {
     pub hp: Option<u32>,
 }
