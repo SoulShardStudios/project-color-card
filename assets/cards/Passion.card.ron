@@ -2,6 +2,6 @@ Card(
     name: "Passion",
     colors: [Yellow, Purple],
     card_type: Food,
-    text: "",
+    text: "Very misleading name for a fruit",
     image: "cards/Passion.png"
 )

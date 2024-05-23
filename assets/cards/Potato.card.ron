@@ -2,6 +2,6 @@ Card(
     name: "Potato",
     colors: [Yellow, Blue],
     card_type: Food,
-    text: "",
+    text: "0.5 Volts",
     image: "cards/Potato.png"
 )

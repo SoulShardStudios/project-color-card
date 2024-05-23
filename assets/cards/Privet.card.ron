@@ -2,6 +2,6 @@ Card(
     name: "Privet",
     colors: [Teal, Purple],
     card_type: Food,
-    text: "",
+    text: "Ok, definately poison",
     image: "cards/Privet.png",
 )

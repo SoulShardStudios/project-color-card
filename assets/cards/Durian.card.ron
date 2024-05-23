@@ -2,6 +2,6 @@ Card(
     name: "Durian",
     colors: [Yellow, Teal],
     card_type: Food,
-    text: "",
+    text: "Oh, this reeks!",
     image: "cards/Durian.png"
 )

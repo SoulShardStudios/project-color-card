@@ -2,6 +2,6 @@ Card(
     name: "Juniper",
     colors: [Purple, Teal],
     card_type: Food,
-    text: "",
+    text: "Are these safe?",
     image: "cards/Juniper.png"
 )
