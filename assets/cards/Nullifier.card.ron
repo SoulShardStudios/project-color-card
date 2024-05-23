@@ -3,5 +3,7 @@ Card(
     colors: [Blue, Purple, Teal],
     card_type: Hero,
     text: "",
-    image: "cards/Nullifier.png"
+    image: "cards/Nullifier.png",
+    damage: Some(1),
+    hp: Some(1),
 )

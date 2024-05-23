@@ -3,5 +3,7 @@ Card(
     colors: [Blue, Purple, Red],
     card_type: Beast,
     text: "",
-    image: "cards/Sentry.png"
+    image: "cards/Sentry.png",
+    damage: Some(1),
+    hp: Some(1),
 )

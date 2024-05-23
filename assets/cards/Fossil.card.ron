@@ -3,5 +3,7 @@ Card(
     colors: [Teal, Yellow],
     card_type: Hero,
     text: "",
-    image: "cards/Fossil.png"
+    image: "cards/Fossil.png",
+    damage: Some(1),
+    hp: Some(1),
 )

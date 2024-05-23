@@ -3,5 +3,7 @@ Card(
     colors: [Purple],
     card_type: Beast,
     text: "Less effective with a nametag",
-    image: "cards/Mimic.png"
+    image: "cards/Mimic.png",
+    damage: Some(1),
+    hp: Some(1),
 )

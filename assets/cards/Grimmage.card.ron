@@ -1,7 +1,9 @@
 Card(
     name: "Grimmage",
-    colors: [Purple, BLue, Teal],
+    colors: [Purple, Blue, Teal],
     card_type: Hero,
     text: "",
-    image: "cards/Grimmage.png"
+    image: "cards/Grimmage.png",
+    damage: Some(1),
+    hp: Some(1),
 )

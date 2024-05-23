@@ -11,6 +11,7 @@ use crate::game_ui_controller::{GameController, GameUiControllerPlugin};
 use bevy::prelude::*;
 use bevy_rand::prelude::WyRand;
 use bevy_rand::resource::GlobalEntropy;
+use num_traits::FromPrimitive;
 use rand::Rng;
 
 pub fn draw_card(
@@ -67,13 +68,7 @@ pub fn draw_card(
                     None => {}
                 }
 
-                // TODO: RE ENABLE WHEN ALL CARD TYPES ARE PRESENT: CardType::from_i8(rng.gen_range(0..4)).unwrap();
-                let new_card_type = match rng.gen_range(0..2) {
-                    0 => CardType::Beast,
-                    1 => CardType::Equipment,
-                    2 => CardType::Hero,
-                    _ => panic!("non exhaustive my ass"),
-                };
+                let new_card_type = CardType::from_i8(rng.gen_range(0..4)).unwrap();
                 card_type_state.set(NextTurnCardType(new_card_type));
                 match draw_image_query.get_single_mut() {
                     Ok(mut x) => {

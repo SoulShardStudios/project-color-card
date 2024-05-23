@@ -3,5 +3,7 @@ Card(
     colors: [Red, Teal],
     card_type: Food,
     text: "",
-    image: "cards/Holly.png"
+    image: "cards/Holly.png",
+    damage: Some(1),
+    hp: Some(1),
 )

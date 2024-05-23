@@ -3,5 +3,5 @@ Card(
     colors: [Yellow],
     card_type: Equipment,
     text: "The beauty seen through acient eyes",
-    image: "cards/Mural.png"
+    image: "cards/Mural.png",
 )

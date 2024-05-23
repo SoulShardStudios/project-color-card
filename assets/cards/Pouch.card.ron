@@ -3,5 +3,5 @@ Card(
     colors: [Green, Red],
     card_type: Equipment,
     text: "",
-    image: "cards/Pouch.png"
+    image: "cards/Pouch.png",
 )
