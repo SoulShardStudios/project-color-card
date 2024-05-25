@@ -2,6 +2,6 @@ Card(
     name: "Avocado",
     colors: [Green, Yellow],
     card_type: Food,
-    text: "",
+    text: "Crunchy center",
     image: "cards/Avocado.png"
 )

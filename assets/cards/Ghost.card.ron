@@ -2,7 +2,7 @@ Card(
     name: "Ghost",
     colors: [Teal, Purple],
     card_type: Hero,
-    text: "",
+    text: "BOO!!!",
     image: "cards/Ghost.png",
     damage: Some(1),
     hp: Some(1),

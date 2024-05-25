@@ -2,6 +2,6 @@ Card(
     name: "Trash",
     colors: [Red, Teal],
     card_type: Equipment,
-    text: "",
+    text: "Total rubbish",
     image: "cards/Trash.png"
 )

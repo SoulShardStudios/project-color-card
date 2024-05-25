@@ -2,7 +2,7 @@ Card(
     name: "Ant",
     colors: [Green, Blue],
     card_type: Beast,
-    text: "",
+    text: "Hey little guy",
     image: "cards/Ant.png",
     damage: Some(1),
     hp: Some(1),

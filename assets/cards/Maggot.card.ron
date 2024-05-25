@@ -2,7 +2,7 @@ Card(
     name: "Maggot",
     colors: [Teal, Yellow],
     card_type: Beast,
-    text: "",
+    text: "Eww",
     image: "cards/Maggot.png",
     damage: Some(1),
     hp: Some(1),

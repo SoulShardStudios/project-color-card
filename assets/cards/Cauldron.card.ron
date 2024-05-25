@@ -2,6 +2,6 @@ Card(
     name: "Cauldron",
     colors: [Green, Purple],
     card_type: Equipment,
-    text: "",
+    text: "Double, double toil and trouble",
     image: "cards/Cauldron.png"
 )

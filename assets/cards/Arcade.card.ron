@@ -2,7 +2,7 @@ Card(
     name: "Arcade",
     colors: [Blue, Red],
     card_type: Beast,
-    text: "",
+    text: "Who plays videogames?",
     image: "cards/Arcade.png",
     damage: Some(1),
     hp: Some(1),

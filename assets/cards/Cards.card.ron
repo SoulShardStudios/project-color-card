@@ -2,6 +2,6 @@ Card(
     name: "Cards",
     colors: [Purple, Red],
     card_type: Equipment,
-    text: "",
+    text: "Cards you say?",
     image: "cards/Cards.png"
 )

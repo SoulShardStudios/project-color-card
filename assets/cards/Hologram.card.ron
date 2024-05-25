@@ -2,7 +2,7 @@ Card(
     name: "Hologram",
     colors: [Blue, Teal],
     card_type: Beast,
-    text: "",
+    text: "I prefer illusions",
     image: "cards/Hologram.png",
     damage: Some(1),
     hp: Some(1),

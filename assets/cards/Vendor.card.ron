@@ -2,7 +2,7 @@ Card(
     name: "Vendor",
     colors: [Blue, Green],
     card_type: Beast,
-    text: "",
+    text: "C4 if my favorite",
     image: "cards/Vendor.png",
     damage: Some(1),
     hp: Some(1),

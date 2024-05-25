@@ -2,7 +2,7 @@ Card(
     name: "Shaman",
     colors: [Yellow, Purple],
     card_type: Hero,
-    text: "",
+    text: "Stay Back",
     image: "cards/Shaman.png",
     damage: Some(1),
     hp: Some(1),

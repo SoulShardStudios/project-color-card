@@ -2,6 +2,6 @@ Card(
     name: "Potion",
     colors: [Purple, Green],
     card_type: Equipment,
-    text: "",
+    text: "Like, the good kind?",
     image: "cards/Potion.png"
 )

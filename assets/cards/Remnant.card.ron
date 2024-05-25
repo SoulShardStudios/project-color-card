@@ -2,7 +2,7 @@ Card(
     name: "Remnant",
     colors: [Yellow, Teal],
     card_type: Hero,
-    text: "",
+    text: "What went wrong?",
     image: "cards/Remnant.png",
     damage: Some(1),
     hp: Some(1),

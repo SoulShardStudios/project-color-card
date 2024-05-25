@@ -2,7 +2,7 @@ Card(
     name: "Goat",
     colors: [Red, Purple],
     card_type: Beast,
-    text: "",
+    text: "A worthy sacrifice",
     image: "cards/Goat.png",
     damage: Some(1),
     hp: Some(1),

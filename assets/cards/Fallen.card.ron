@@ -2,7 +2,7 @@ Card(
     name: "Fallen",
     colors: [Red, Teal],
     card_type: Hero,
-    text: "",
+    text: "Don't get in over your head",
     image: "cards/Fallen.png",
     damage: Some(1),
     hp: Some(1),

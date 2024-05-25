@@ -2,7 +2,7 @@ Card(
     name: "Rotten",
     colors: [Green, Teal],
     card_type: Hero,
-    text: "",
+    text: "Life still flows through me",
     image: "cards/Rotten.png",
     damage: Some(1),
     hp: Some(1),

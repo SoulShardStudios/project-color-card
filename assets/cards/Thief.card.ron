@@ -2,7 +2,7 @@ Card(
     name: "Thief",
     colors: [Red, Green],
     card_type: Hero,
-    text: "",
+    text: "Hey! Get that name off me!",
     image: "cards/Thief.png",
     damage: Some(1),
     hp: Some(1),

@@ -2,7 +2,7 @@ Card(
     name: "Turtle",
     colors: [Green, Yellow],
     card_type: Beast,
-    text: "",
+    text: "Shell dweller",
     image: "cards/Turtle.png",
     damage: Some(1),
     hp: Some(1),

@@ -2,7 +2,7 @@ Card(
     name: "Gnome",
     colors: [Green, Blue],
     card_type: Hero,
-    text: "",
+    text: "No. No. Yes! Maybe? No.",
     image: "cards/Gnome.png",
     damage: Some(1),
     hp: Some(1),
