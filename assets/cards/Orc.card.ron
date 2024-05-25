@@ -2,7 +2,7 @@ Card(
     name: "Orc",
     colors: [Green, Red, Yellow],
     card_type: Hero,
-    text: "",
+    text: "UurrAUGH!",
     image: "cards/Orc.png",
     damage: Some(1),
     hp: Some(1),

@@ -2,7 +2,7 @@ Card(
     name: "Strawman",
     colors: [Red, Teal, Green],
     card_type: Hero,
-    text: "",
+    text: "...",
     image: "cards/Strawman.png",
     damage: Some(1),
     hp: Some(1),

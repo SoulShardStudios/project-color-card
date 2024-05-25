@@ -2,7 +2,7 @@ Card(
     name: "Withered",
     colors: [Teal, Yellow, Red],
     card_type: Hero,
-    text: "",
+    text: "SssnnnnaaAP!",
     image: "cards/Withered.png",
     damage: Some(1),
     hp: Some(1),

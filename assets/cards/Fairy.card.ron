@@ -2,7 +2,7 @@ Card(
     name: "Fairy",
     colors: [Green, Red, Purple],
     card_type: Hero,
-    text: "",
+    text: "Excuse me, may I have your name?",
     image: "cards/Fairy.png",
     damage: Some(1),
     hp: Some(1),

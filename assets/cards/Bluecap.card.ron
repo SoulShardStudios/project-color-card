@@ -2,7 +2,7 @@ Card(
     name: "Bluecap",
     colors: [Green, Purple, Blue],
     card_type: Hero,
-    text: "",
+    text: "This way. This way.",
     image: "cards/Bluecap.png",
     damage: Some(1),
     hp: Some(1),

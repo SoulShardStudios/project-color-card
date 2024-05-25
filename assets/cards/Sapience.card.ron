@@ -2,7 +2,7 @@ Card(
     name: "Sapience",
     colors: [Blue, Teal, Purple],
     card_type: Hero,
-    text: "",
+    text: "Hello there",
     image: "cards/Sapience.png",
     damage: Some(1),
     hp: Some(1),

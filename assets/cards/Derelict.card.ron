@@ -2,7 +2,7 @@ Card(
     name: "Derelict",
     colors: [Teal, Blue, Green],
     card_type: Hero,
-    text: "",
+    text: "...",
     image: "cards/Derelict.png",
     damage: Some(1),
     hp: Some(1),

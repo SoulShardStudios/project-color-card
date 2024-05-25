@@ -2,7 +2,7 @@ Card(
     name: "Culiturge",
     colors: [Purple, Red, Green],
     card_type: Hero,
-    text: "",
+    text: "Want some cake?",
     image: "cards/Culiturge.png",
     damage: Some(1),
     hp: Some(1),

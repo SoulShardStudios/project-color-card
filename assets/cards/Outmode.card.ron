@@ -2,7 +2,7 @@ Card(
     name: "Outmode",
     colors: [Blue, Yellow, Teal],
     card_type: Hero,
-    text: "",
+    text: ".... . ._.. ._... ___",
     image: "cards/Outmode.png",
     damage: Some(1),
     hp: Some(1),

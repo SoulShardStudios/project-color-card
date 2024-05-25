@@ -2,7 +2,7 @@ Card(
     name: "Troll",
     colors: [Green, Blue, Teal],
     card_type: Hero,
-    text: "",
+    text: "Yum",
     image: "cards/Troll.png",
     damage: Some(1),
     hp: Some(1),

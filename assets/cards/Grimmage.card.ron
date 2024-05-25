@@ -2,7 +2,7 @@ Card(
     name: "Grimmage",
     colors: [Purple, Blue, Teal],
     card_type: Hero,
-    text: "",
+    text: "I've mastered the forbidden arts",
     image: "cards/Grimmage.png",
     damage: Some(1),
     hp: Some(1),

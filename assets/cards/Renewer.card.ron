@@ -2,7 +2,7 @@ Card(
     name: "Renewer",
     colors: [Blue, Purple, Green],
     card_type: Hero,
-    text: "",
+    text: "Technology need not to harm nature",
     image: "cards/Renewer.png",
     damage: Some(1),
     hp: Some(1),

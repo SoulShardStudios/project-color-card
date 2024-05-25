@@ -2,7 +2,7 @@ Card(
     name: "Chef",
     colors: [Red, Blue, Green],
     card_type: Hero,
-    text: "",
+    text: "The secret ingredient is violence",
     image: "cards/Chef.png",
     damage: Some(1),
     hp: Some(1),

@@ -2,7 +2,7 @@ Card(
     name: "Gargoyle",
     colors: [Green, Yellow, Teal],
     card_type: Hero,
-    text: "",
+    text: "I'll scare them off!",
     image: "cards/Gargoyle.png",
     damage: Some(1),
     hp: Some(1),

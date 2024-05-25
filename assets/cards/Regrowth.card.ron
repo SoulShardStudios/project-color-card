@@ -2,7 +2,7 @@ Card(
     name: "Regrowth",
     colors: [Teal, Yellow, Green],
     card_type: Hero,
-    text: "",
+    text: "...",
     image: "cards/Regrowth.png",
     damage: Some(1),
     hp: Some(1),

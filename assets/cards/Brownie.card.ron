@@ -2,7 +2,7 @@ Card(
     name: "Brownie",
     colors: [Green, Blue, Purple],
     card_type: Hero,
-    text: "",
+    text: "I ain't chocolate!",
     image: "cards/Brownie.png",
     damage: Some(1),
     hp: Some(1),

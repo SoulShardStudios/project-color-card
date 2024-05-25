@@ -2,7 +2,7 @@ Card(
     name: "Slayer",
     colors: [Yellow, Red, Teal],
     card_type: Hero,
-    text: "",
+    text: "It's sabbing time!",
     image: "cards/Slayer.png",
     damage: Some(1),
     hp: Some(1),

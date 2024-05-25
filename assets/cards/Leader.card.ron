@@ -2,7 +2,7 @@ Card(
     name: "Leader",
     colors: [Yellow, Red, Blue],
     card_type: Hero,
-    text: "",
+    text: "You got this!",
     image: "cards/Leader.png",
     damage: Some(1),
     hp: Some(1),

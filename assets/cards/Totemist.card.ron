@@ -2,7 +2,7 @@ Card(
     name: "Totemist",
     colors: [Purple, Red, Yellow],
     card_type: Hero,
-    text: "",
+    text: "All life has a power to share",
     image: "cards/Totemist.png",
     damage: Some(1),
     hp: Some(1),

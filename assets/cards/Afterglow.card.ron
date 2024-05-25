@@ -2,7 +2,7 @@ Card(
     name: "Afterglow",
     colors: [Teal, Green, Purple],
     card_type: Hero,
-    text: "",
+    text: "...",
     image: "cards/Afterglow.png",
     damage: Some(1),
     hp: Some(1),

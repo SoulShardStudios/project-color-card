@@ -2,7 +2,7 @@ Card(
     name: "Talos",
     colors: [Yellow, Teal, Blue],
     card_type: Hero,
-    text: "",
+    text: "What makes a human?",
     image: "cards/Talos.png",
     damage: Some(1),
     hp: Some(1),

@@ -2,7 +2,7 @@ Card(
     name: "Solarbot",
     colors: [Blue, Green, Teal],
     card_type: Hero,
-    text: "",
+    text: "The future is green",
     image: "cards/Solarbot.png",
     damage: Some(1),
     hp: Some(1),

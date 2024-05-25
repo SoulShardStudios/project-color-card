@@ -2,7 +2,7 @@ Card(
     name: "Scholar",
     colors: [Red, Blue, Purple],
     card_type: Hero,
-    text: "",
+    text: "I look ridiculous",
     image: "cards/Scholar.png",
     damage: Some(1),
     hp: Some(1),

@@ -2,7 +2,7 @@ Card(
     name: "Exile",
     colors: [Red, Yellow, Teal],
     card_type: Hero,
-    text: "",
+    text: "Never do something you can't live with",
     image: "cards/Exile.png",
     damage: Some(1),
     hp: Some(1),

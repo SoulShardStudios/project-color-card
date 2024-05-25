@@ -2,7 +2,7 @@ Card(
     name: "Guru",
     colors: [Yellow, Purple, Red],
     card_type: Hero,
-    text: "",
+    text: "The path you seek is veiled in strife",
     image: "cards/Guru.png",
     damage: Some(1),
     hp: Some(1),

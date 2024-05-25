@@ -2,7 +2,7 @@ Card(
     name: "Bonelord",
     colors: [Purple, Yellow, Teal],
     card_type: Hero,
-    text: "",
+    text: "Rise my Minions!",
     image: "cards/Bonelord.png",
     damage: Some(1),
     hp: Some(1),

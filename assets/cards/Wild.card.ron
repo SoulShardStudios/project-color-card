@@ -2,7 +2,7 @@ Card(
     name: "Wild",
     colors: [Teal, Purple, Green],
     card_type: Hero,
-    text: "",
+    text: " . . . ",
     image: "cards/Wild.png",
     damage: Some(1),
     hp: Some(1),

@@ -2,7 +2,7 @@ Card(
     name: "Archive",
     colors: [Blue, Purple, Yellow],
     card_type: Hero,
-    text: "",
+    text: "A repository or collection especially of information",
     image: "cards/Archive.png",
     damage: Some(1),
     hp: Some(1),

@@ -2,7 +2,7 @@ Card(
     name: "Pyro",
     colors: [Blue, Green, Red],
     card_type: Hero,
-    text: "",
+    text: "Burn. Burn! BURN!",
     image: "cards/Pyro.png",
     damage: Some(1),
     hp: Some(1),

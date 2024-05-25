@@ -2,7 +2,7 @@ Card(
     name: "Recept",
     colors: [Yellow, Teal, Green],
     card_type: Hero,
-    text: "",
+    text: "...",
     image: "cards/Recept.png",
     damage: Some(1),
     hp: Some(1),

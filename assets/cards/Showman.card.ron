@@ -2,7 +2,7 @@ Card(
     name: "Showman",
     colors: [Red, Purple, Yellow],
     card_type: Hero,
-    text: "",
+    text: "Come one! Come all!",
     image: "cards/Showman.png",
     damage: Some(1),
     hp: Some(1),

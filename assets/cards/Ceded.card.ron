@@ -2,7 +2,7 @@ Card(
     name: "Ceded",
     colors: [Blue, Teal, Green],
     card_type: Hero,
-    text: "",
+    text: "...",
     image: "cards/Ceded.png",
     damage: Some(1),
     hp: Some(1),

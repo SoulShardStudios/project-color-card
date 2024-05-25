@@ -2,7 +2,7 @@ Card(
     name: "Shifter",
     colors: [Green, Teal, Purple],
     card_type: Hero,
-    text: "",
+    text: "...",
     image: "cards/Shifter.png",
     damage: Some(1),
     hp: Some(1),

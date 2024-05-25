@@ -2,7 +2,7 @@ Card(
     name: "Caver",
     colors: [Yellow, Blue, Teal],
     card_type: Hero,
-    text: "",
+    text: "There's bones in there",
     image: "cards/Caver.png",
     damage: Some(1),
     hp: Some(1),

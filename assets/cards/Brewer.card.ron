@@ -2,7 +2,7 @@ Card(
     name: "Brewer",
     colors: [Purple, Blue, Green],
     card_type: Hero,
-    text: "",
+    text: "It's, uh.. TEA! yeah, Tea.",
     image: "cards/Brewer.png",
     damage: Some(1),
     hp: Some(1),

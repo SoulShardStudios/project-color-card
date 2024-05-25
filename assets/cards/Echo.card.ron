@@ -2,7 +2,7 @@ Card(
     name: "Echo",
     colors: [Yellow, Teal, Purple],
     card_type: Hero,
-    text: "",
+    text: "Echo... echo...",
     image: "cards/Echo.png",
     damage: Some(1),
     hp: Some(1),

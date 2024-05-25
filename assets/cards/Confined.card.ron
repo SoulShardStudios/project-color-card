@@ -2,7 +2,7 @@ Card(
     name: "Confined",
     colors: [Teal, Blue, Purple],
     card_type: Hero,
-    text: "",
+    text: "ERROR ERROR E ROR  RR R E     ",
     image: "cards/Confined.png",
     damage: Some(1),
     hp: Some(1),
