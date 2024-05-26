@@ -2,7 +2,7 @@ Card(
     name: "RainBird",
     colors: [Purple, Blue, Green],
     card_type: Beast,
-    text: "",
+    text: "Very good omen",
     image: "cards/Ragworm.png",
     damage: Some(1),
     hp: Some(1),

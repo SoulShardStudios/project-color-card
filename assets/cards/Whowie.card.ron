@@ -2,7 +2,7 @@ Card(
     name: "Whowie",
     colors: [Purple, Green, Yellow],
     card_type: Beast,
-    text: "",
+    text: "Not just a happy sound",
     image: "cards/Whowie.png",
     damage: Some(1),
     hp: Some(1),

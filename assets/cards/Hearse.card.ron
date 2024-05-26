@@ -2,7 +2,7 @@ Card(
     name: "Hearse",
     colors: [Blue, Yellow, Teal],
     card_type: Beast,
-    text: "",
+    text: "People are dying to get in",
     image: "cards/Hearse.png",
     damage: Some(1),
     hp: Some(1),

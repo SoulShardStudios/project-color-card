@@ -2,7 +2,7 @@ Card(
     name: "Horse",
     colors: [Red, Blue, Yellow],
     card_type: Beast,
-    text: "",
+    text: "A very bad omen",
     image: "cards/Horse.png",
     damage: Some(1),
     hp: Some(1),

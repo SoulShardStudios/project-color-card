@@ -2,7 +2,7 @@ Card(
     name: "HellHound",
     colors: [Red, Teal, Yellow],
     card_type: Beast,
-    text: "",
+    text: "Rough...",
     image: "cards/HellHound.png",
     damage: Some(1),
     hp: Some(1),

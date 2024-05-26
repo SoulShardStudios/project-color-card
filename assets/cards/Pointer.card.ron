@@ -2,7 +2,7 @@ Card(
     name: "Pointer",
     colors: [Blue, Teal, Yellow],
     card_type: Beast,
-    text: "",
+    text: "Fun with cats",
     image: "cards/Pointer.png",
     damage: Some(1),
     hp: Some(1),

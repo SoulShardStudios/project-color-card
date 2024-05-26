@@ -2,7 +2,7 @@ Card(
     name: "Scarab",
     colors: [Green, Blue, Teal],
     card_type: Beast,
-    text: "",
+    text: "Rolls around a ball of poop",
     image: "cards/Scarab.png",
     damage: Some(1),
     hp: Some(1),

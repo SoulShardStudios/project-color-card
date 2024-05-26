@@ -2,7 +2,7 @@ Card(
     name: "Mole",
     colors: [Teal, Purple, Blue],
     card_type: Beast,
-    text: "",
+    text: "Secretly a spy",
     image: "cards/Mole.png",
     damage: Some(1),
     hp: Some(1),

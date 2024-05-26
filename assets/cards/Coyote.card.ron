@@ -2,7 +2,7 @@ Card(
     name: "Coyote",
     colors: [Red, Yellow, Teal],
     card_type: Beast,
-    text: "",
+    text: "Canine scavenger",
     image: "cards/Coyote.png",
     damage: Some(1),
     hp: Some(1),

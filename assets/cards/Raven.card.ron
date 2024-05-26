@@ -2,7 +2,7 @@ Card(
     name: "Raven",
     colors: [Purple, Blue, Teal],
     card_type: Beast,
-    text: "",
+    text: "Normal raven",
     image: "cards/Raven.png",
     damage: Some(1),
     hp: Some(1),

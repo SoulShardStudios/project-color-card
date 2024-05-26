@@ -2,7 +2,7 @@ Card(
     name: "Millipede",
     colors: [Green, Teal, Red],
     card_type: Beast,
-    text: "",
+    text: "Not really a million legs",
     image: "cards/Millipede.png",
     damage: Some(1),
     hp: Some(1),

@@ -2,7 +2,7 @@ Card(
     name: "Familiar",
     colors: [Purple, Yellow, Red],
     card_type: Beast,
-    text: "",
+    text: "Witch's best friend",
     image: "cards/Familiar.png",
     damage: Some(1),
     hp: Some(1),

@@ -2,7 +2,7 @@ Card(
     name: "Balloon",
     colors: [Blue, Yellow, Purple],
     card_type: Beast,
-    text: "",
+    text: "Pop???",
     image: "cards/Balloon.png",
     damage: Some(1),
     hp: Some(1),

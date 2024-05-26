@@ -2,7 +2,7 @@ Card(
     name: "Jukebox",
     colors: [Blue, Red, Purple],
     card_type: Beast,
-    text: "",
+    text: "Favorite song?",
     image: "cards/Jukebox.png",
     damage: Some(1),
     hp: Some(1),

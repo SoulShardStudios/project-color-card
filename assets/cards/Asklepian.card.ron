@@ -2,7 +2,7 @@ Card(
     name: "Asklepian",
     colors: [Green, Red, Teal],
     card_type: Beast,
-    text: "",
+    text: "It's not a caduceus!",
     image: "cards/Asklepian.png",
     damage: Some(1),
     hp: Some(1),

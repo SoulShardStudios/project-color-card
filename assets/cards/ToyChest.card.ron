@@ -2,7 +2,7 @@ Card(
     name: "ToyChest",
     colors: [Purple, Red, Blue],
     card_type: Beast,
-    text: "",
+    text: "A chest for toys. Not a chest that is a toy",
     image: "cards/ToyChest.png",
     damage: Some(1),
     hp: Some(1),

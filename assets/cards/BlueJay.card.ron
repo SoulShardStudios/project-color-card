@@ -2,7 +2,7 @@ Card(
     name: "BlueJay",
     colors: [Yellow, Teal, Blue],
     card_type: Beast,
-    text: "",
+    text: "Preppy Raven",
     image: "cards/BlueJay.png",
     damage: Some(1),
     hp: Some(1),

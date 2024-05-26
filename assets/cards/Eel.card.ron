@@ -2,7 +2,7 @@ Card(
     name: "Eel",
     colors: [Green, Red, Blue],
     card_type: Beast,
-    text: "",
+    text: "Wet slimey noodle",
     image: "cards/Eel.png",
     damage: Some(1),
     hp: Some(1),

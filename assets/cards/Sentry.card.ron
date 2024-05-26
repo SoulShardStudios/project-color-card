@@ -2,7 +2,7 @@ Card(
     name: "Sentry",
     colors: [Blue, Purple, Red],
     card_type: Beast,
-    text: "",
+    text: "Stay out of line of sight",
     image: "cards/Sentry.png",
     damage: Some(1),
     hp: Some(1),

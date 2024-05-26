@@ -2,7 +2,7 @@ Card(
     name: "Pangolin",
     colors: [Teal, Purple, Yellow],
     card_type: Beast,
-    text: "",
+    text: "Pinecone cosplayer",
     image: "cards/Pangolin.png",
     damage: Some(1),
     hp: Some(1),

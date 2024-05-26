@@ -2,7 +2,7 @@ Card(
     name: "Elephant",
     colors: [Yellow, Red, Blue],
     card_type: Beast,
-    text: "",
+    text: "Modern Megafauna",
     image: "cards/Elephant.png",
     damage: Some(1),
     hp: Some(1),

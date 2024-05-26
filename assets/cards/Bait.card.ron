@@ -2,7 +2,7 @@ Card(
     name: "Bait",
     colors: [Teal, Green, Yellow],
     card_type: Beast,
-    text: "",
+    text: "Yum!      OW!",
     image: "cards/Bait.png",
     damage: Some(1),
     hp: Some(1),

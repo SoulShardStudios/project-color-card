@@ -2,7 +2,7 @@ Card(
     name: "DartFrog",
     colors: [Green, Purple, Teal],
     card_type: Beast,
-    text: "",
+    text: "What do you even do with that much poison?",
     image: "cards/DartFrog.png",
     damage: Some(1),
     hp: Some(1),

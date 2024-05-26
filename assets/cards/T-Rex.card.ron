@@ -2,7 +2,7 @@ Card(
     name: "T-Rex",
     colors: [Yellow, Green, Red],
     card_type: Beast,
-    text: "",
+    text: "Tyranical lizard king",
     image: "cards/T-Rex.png",
     damage: Some(1),
     hp: Some(1),

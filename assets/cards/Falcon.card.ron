@@ -2,7 +2,7 @@ Card(
     name: "Falcon",
     colors: [Yellow, Purple, Red],
     card_type: Beast,
-    text: "",
+    text: "Actually a type of parrot",
     image: "cards/Falcon.png",
     damage: Some(1),
     hp: Some(1),

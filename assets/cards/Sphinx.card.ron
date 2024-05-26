@@ -2,7 +2,7 @@ Card(
     name: "Sphinx",
     colors: [Purple, Teal, Yellow],
     card_type: Beast,
-    text: "",
+    text: "Answer her riddles 3",
     image: "cards/Sphinx.png",
     damage: Some(1),
     hp: Some(1),

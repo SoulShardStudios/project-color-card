@@ -2,7 +2,7 @@ Card(
     name: "Meerkat",
     colors: [Yellow, Teal, Green],
     card_type: Beast,
-    text: "",
+    text: "Very shy",
     image: "cards/Meerkat.png",
     damage: Some(1),
     hp: Some(1),

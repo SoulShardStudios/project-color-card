@@ -2,7 +2,7 @@ Card(
     name: "Hen",
     colors: [Red, Blue, Green],
     card_type: Beast,
-    text: "",
+    text: "Stay at home mom",
     image: "cards/Hen.png",
     damage: Some(1),
     hp: Some(1),

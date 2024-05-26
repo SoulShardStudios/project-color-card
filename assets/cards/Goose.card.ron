@@ -2,7 +2,7 @@ Card(
     name: "Goose",
     colors: [Red, Blue, Teal],
     card_type: Beast,
-    text: "",
+    text: "Run! Save yourself!",
     image: "cards/Goose.png",
     damage: Some(1),
     hp: Some(1),

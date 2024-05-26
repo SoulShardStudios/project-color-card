@@ -2,7 +2,7 @@ Card(
     name: "Catsith",
     colors: [Purple, Teal, Red],
     card_type: Beast,
-    text: "",
+    text: "Cat shaped fairy",
     image: "cards/Catsith.png",
     damage: Some(1),
     hp: Some(1),

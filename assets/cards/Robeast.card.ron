@@ -2,7 +2,7 @@ Card(
     name: "Robeast",
     colors: [Blue, Red, Yellow],
     card_type: Beast,
-    text: "",
+    text: "Best friend forever",
     image: "cards/Robeast.png",
     damage: Some(1),
     hp: Some(1),

@@ -2,7 +2,7 @@ Card(
     name: "Shiitake",
     colors: [Teal, Yellow, Green],
     card_type: Beast,
-    text: "",
+    text: "Real fun guy",
     image: "cards/Shiitake.png",
     damage: Some(1),
     hp: Some(1),

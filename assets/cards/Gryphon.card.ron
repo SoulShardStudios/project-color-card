@@ -2,7 +2,7 @@ Card(
     name: "Gryphon",
     colors: [Yellow, Red ,Purple],
     card_type: Beast,
-    text: "",
+    text: "Symbol of courage",
     image: "cards/Gryphon.png",
     damage: Some(1),
     hp: Some(1),

@@ -2,7 +2,7 @@ Card(
     name: "Magpie",
     colors: [Yellow, Teal, Purple],
     card_type: Beast,
-    text: "",
+    text: "Flashy raven",
     image: "cards/Magpie.png",
     damage: Some(1),
     hp: Some(1),

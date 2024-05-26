@@ -2,7 +2,7 @@ Card(
     name: "Penguin",
     colors: [Yellow, Purple, Blue],
     card_type: Beast,
-    text: "",
+    text: "Business goose",
     image: "cards/Penguin.png",
     damage: Some(1),
     hp: Some(1),

@@ -2,7 +2,7 @@ Card(
     name: "Bison",
     colors: [Red, Green, Yellow],
     card_type: Beast,
-    text: "",
+    text: "They're bigger than you think. No, Bigger",
     image: "cards/Bison.png",
     damage: Some(1),
     hp: Some(1),

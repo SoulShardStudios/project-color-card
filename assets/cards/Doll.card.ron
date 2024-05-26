@@ -2,7 +2,7 @@ Card(
     name: "Doll",
     colors: [Purple, Red, Teal],
     card_type: Beast,
-    text: "",
+    text: "Why does it make me feel...",
     image: "cards/Doll.png",
     damage: Some(1),
     hp: Some(1),

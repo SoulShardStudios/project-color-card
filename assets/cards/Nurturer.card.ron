@@ -2,7 +2,7 @@ Card(
     name: "Nurturer",
     colors: [Blue, Purple, Green],
     card_type: Beast,
-    text: "",
+    text: "Weird fork",
     image: "cards/Nurturer.png",
     damage: Some(1),
     hp: Some(1),

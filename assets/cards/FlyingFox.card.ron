@@ -2,7 +2,7 @@ Card(
     name: "FlyingFox",
     colors: [Teal, Purple, Red],
     card_type: Beast,
-    text: "",
+    text: "Man sized bat",
     image: "cards/FlyingFox.png",
     damage: Some(1),
     hp: Some(1),

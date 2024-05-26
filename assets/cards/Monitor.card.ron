@@ -2,7 +2,7 @@ Card(
     name: "Monitor",
     colors: [Green, Purple, Blue],
     card_type: Beast,
-    text: "",
+    text: "BIG LIZARD!",
     image: "cards/Monitor.png",
     damage: Some(1),
     hp: Some(1),

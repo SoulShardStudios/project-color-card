@@ -2,7 +2,7 @@ Card(
     name: "GuineaPig",
     colors: [Teal, Blue, Green],
     card_type: Beast,
-    text: "",
+    text: "Tinny capybara",
     image: "cards/GuineaPig.png",
     damage: Some(1),
     hp: Some(1),

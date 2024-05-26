@@ -2,7 +2,7 @@ Card(
     name: "Snail",
     colors: [Purple, Yellow, Blue],
     card_type: Beast,
-    text: "",
+    text: "Half snake, half quail",
     image: "cards/Snail.png",
     damage: Some(1),
     hp: Some(1),

@@ -2,7 +2,7 @@ Card(
     name: "Replayer",
     colors: [Blue, Purple, Teal],
     card_type: Beast,
-    text: "",
+    text: "And repeat",
     image: "cards/Replayer.png",
     damage: Some(1),
     hp: Some(1),

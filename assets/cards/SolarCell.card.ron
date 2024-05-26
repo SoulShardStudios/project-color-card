@@ -2,7 +2,7 @@ Card(
     name: "SolarCell",
     colors: [Blue, Green, Teal],
     card_type: Beast,
-    text: "",
+    text: "Fake plant",
     image: "cards/SolarCell.png",
     damage: Some(1),
     hp: Some(1),

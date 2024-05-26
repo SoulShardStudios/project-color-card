@@ -2,7 +2,7 @@ Card(
     name: "Haunted",
     colors: [Blue, Red, Teal],
     card_type: Beast,
-    text: "",
+    text: "I... I woundn't play this one",
     image: "cards/Haunted.png",
     damage: Some(1),
     hp: Some(1),

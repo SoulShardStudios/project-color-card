@@ -2,7 +2,7 @@ Card(
     name: "JinChan",
     colors: [Purple, Red, Blue],
     card_type: Beast,
-    text: "",
+    text: "Good for feng shui",
     image: "cards/JinChan.png",
     damage: Some(1),
     hp: Some(1),

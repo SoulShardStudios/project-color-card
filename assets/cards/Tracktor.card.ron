@@ -2,7 +2,7 @@ Card(
     name: "Tracktor",
     colors: [Blue, Yellow, Green],
     card_type: Beast,
-    text: "",
+    text: "Surprisingly hard to draw",
     image: "cards/Tracktor.png",
     damage: Some(1),
     hp: Some(1),
