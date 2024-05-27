@@ -2,7 +2,7 @@ Card(
     name: "CaneToad",
     colors: [Purple, Green, Teal],
     card_type: Beast,
-    text: "DON"T TOUCH",
+    text: "DON'T TOUCH",
     image: "cards/CaneToad.png",
     damage: Some(1),
     hp: Some(1),
