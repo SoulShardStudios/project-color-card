@@ -187,9 +187,9 @@ fn spawn_slots_for_team<'a>(
                                                 font: font.clone(),
                                                 font_size: 10.0,
                                                 color: Color::Rgba {
-                                                    red: 0.0,
+                                                    red: 0.4375,
                                                     green: 0.0,
-                                                    blue: 0.0,
+                                                    blue: 0.36328125,
                                                     alpha: 1.0,
                                                 },
                                                 ..default()
