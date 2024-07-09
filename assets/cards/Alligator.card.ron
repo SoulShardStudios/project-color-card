@@ -5,5 +5,5 @@ Card(
     text: "See ya later!",
     image: "cards/Alligator.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

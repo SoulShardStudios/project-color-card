@@ -5,5 +5,5 @@ Card(
     text: "It's sabbing time!",
     image: "cards/Slayer.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

@@ -5,5 +5,5 @@ Card(
     text: "Rattle Rattle",
     image: "cards/Skeleton.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

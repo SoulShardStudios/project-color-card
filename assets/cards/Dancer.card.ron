@@ -5,5 +5,5 @@ Card(
     text: "A five six seven eight",
     image: "cards/Dancer.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

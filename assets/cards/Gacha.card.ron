@@ -5,5 +5,5 @@ Card(
     text: "I hope i get a red one!",
     image: "cards/Gacha.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

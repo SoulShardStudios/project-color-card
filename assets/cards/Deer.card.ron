@@ -5,5 +5,5 @@ Card(
     text: "Only young deer panic at headlights",
     image: "cards/Deer.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

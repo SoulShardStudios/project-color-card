@@ -5,5 +5,5 @@ Card(
     text: "Dude from the nutcraker",
     image: "cards/RatKing.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

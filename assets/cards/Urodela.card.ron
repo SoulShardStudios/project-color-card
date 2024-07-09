@@ -5,5 +5,5 @@ Card(
     text: "All salamanders have no more than 18 toes",
     image: "cards/Urodela.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

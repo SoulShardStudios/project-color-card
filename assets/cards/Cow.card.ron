@@ -5,5 +5,5 @@ Card(
     text: "It's like a giant puppy!",
     image: "cards/Cow.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

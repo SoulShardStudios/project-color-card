@@ -5,5 +5,5 @@ Card(
     text: "What is this an anime?",
     image: "cards/Mecha.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

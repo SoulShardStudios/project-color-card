@@ -5,5 +5,5 @@ Card(
     text: "looks like neithar a mole nor a rat",
     image: "cards/MoleRat.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

@@ -5,5 +5,5 @@ Card(
     text: "S o   C o o l !",
     image: "cards/Sloth.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

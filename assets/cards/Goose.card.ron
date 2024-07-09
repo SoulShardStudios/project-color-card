@@ -5,5 +5,5 @@ Card(
     text: "Run! Save yourself!",
     image: "cards/Goose.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

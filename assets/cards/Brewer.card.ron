@@ -5,5 +5,5 @@ Card(
     text: "It's, uh.. TEA! yeah, Tea.",
     image: "cards/Brewer.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

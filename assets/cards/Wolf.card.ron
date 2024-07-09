@@ -5,5 +5,5 @@ Card(
     text: "Man's friend for highschool",
     image: "cards/Wolf.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

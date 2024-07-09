@@ -5,5 +5,5 @@ Card(
     text: "A very bad omen",
     image: "cards/Horse.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

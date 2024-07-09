@@ -5,5 +5,5 @@ Card(
     text: "That stone is good luck",
     image: "cards/Anapitan.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

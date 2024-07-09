@@ -5,5 +5,5 @@ Card(
     text: "I wouldn't touch you with a 39 and a half foot pole!",
     image: "cards/Roaster.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

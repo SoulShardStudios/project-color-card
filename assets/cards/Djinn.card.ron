@@ -5,5 +5,5 @@ Card(
     text: "As you wish",
     image: "cards/Djinn.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

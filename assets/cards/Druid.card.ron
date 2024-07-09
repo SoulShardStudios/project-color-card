@@ -5,5 +5,5 @@ Card(
     text: "You are not alone if there are trees",
     image: "cards/Druid.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

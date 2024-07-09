@@ -5,5 +5,5 @@ Card(
     text: "Boo! this guy stinks!",
     image: "cards/Skunk.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

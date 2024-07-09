@@ -5,5 +5,5 @@ Card(
     text: "I see dinner!",
     image: "cards/Hunter.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

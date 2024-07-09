@@ -5,5 +5,5 @@ Card(
     text: "Behold the power of the sun!",
     image: "cards/Lens.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

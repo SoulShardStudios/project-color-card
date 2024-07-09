@@ -5,5 +5,5 @@ Card(
     text: "To bloom, you must grow",
     image: "cards/Planter.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

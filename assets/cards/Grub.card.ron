@@ -5,5 +5,5 @@ Card(
     text: "Synonymous for food",
     image: "cards/Grub.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

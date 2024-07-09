@@ -5,5 +5,5 @@ Card(
     text: "ITS SO FLUFFY!",
     image: "cards/Chinchilla.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

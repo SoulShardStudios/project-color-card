@@ -5,5 +5,5 @@ Card(
     text: "DON'T TOUCH",
     image: "cards/CaneToad.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

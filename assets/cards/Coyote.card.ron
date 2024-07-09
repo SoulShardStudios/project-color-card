@@ -5,5 +5,5 @@ Card(
     text: "Canine scavenger",
     image: "cards/Coyote.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

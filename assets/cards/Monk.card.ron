@@ -5,5 +5,5 @@ Card(
     text: "to not act is to act for nothing",
     image: "cards/Monk.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

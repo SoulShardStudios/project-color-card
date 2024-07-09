@@ -5,5 +5,5 @@ Card(
     text: "Your failure is certain. Surrender",
     image: "cards/Medium.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

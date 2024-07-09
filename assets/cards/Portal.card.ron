@@ -5,5 +5,5 @@ Card(
     text: "Where does it go?",
     image: "cards/Poison.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

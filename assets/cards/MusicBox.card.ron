@@ -5,5 +5,5 @@ Card(
     text: "Is box of music. What more you want?",
     image: "cards/MusicBox.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

@@ -5,5 +5,5 @@ Card(
     text: "Cover your ears",
     image: "cards/Howler.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

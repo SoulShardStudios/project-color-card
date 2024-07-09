@@ -5,5 +5,5 @@ Card(
     text: "Preppy Raven",
     image: "cards/BlueJay.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

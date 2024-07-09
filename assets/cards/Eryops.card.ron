@@ -5,5 +5,5 @@ Card(
     text: "Idk man, look it up",
     image: "cards/Eryops.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

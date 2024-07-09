@@ -5,5 +5,5 @@ Card(
     text: "You reap what you sow",
     image: "cards/Farmer.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

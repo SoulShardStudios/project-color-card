@@ -120,7 +120,7 @@ fn play_card(
         // pick up card and set custom cursor
         CustomCursor::Default => {
             for (interaction, entity) in &mut interaction_query {
-                let (slot) = card_slot_query
+                let slot = card_slot_query
                     .get(children_query.iter_descendants(entity).nth(0).unwrap())
                     .unwrap();
                 if !(slot.team == current_turn_team.get().0 && slot.slot_type == CardSlotType::Hand)
@@ -143,12 +143,9 @@ fn play_card(
             }
         }
         // place custom cursor down in play and adjust slots
-        CustomCursor::Card {
-            card,
-            stats: _stats,
-        } => {
+        CustomCursor::Card { card, stats } => {
             for (interaction, entity) in &mut interaction_query {
-                let (slot) = card_slot_query
+                let slot = card_slot_query
                     .get(children_query.iter_descendants(entity).nth(0).unwrap())
                     .unwrap();
                 if !(slot.team == current_turn_team.get().0 && slot.slot_type == CardSlotType::Play)
@@ -157,11 +154,7 @@ fn play_card(
                 }
                 match *interaction {
                     Interaction::Pressed => {
-                        let stats = match game_ui_controller.get_card(slot) {
-                            Some(x) => x.1.clone(),
-                            None => CardStats { hp: None },
-                        };
-                        game_ui_controller.push_card_into_stack(slot.clone(), card, stats);
+                        game_ui_controller.push_card_into_stack(slot.clone(), card, stats.clone());
                         game_ui_controller.stack_cards(slot.team, slot.slot_type);
                         *custom_cursor = CustomCursor::Default;
                         turn_state.set(TurnState::ApplyMoves);

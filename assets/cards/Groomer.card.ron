@@ -5,5 +5,5 @@ Card(
     text: ":3",
     image: "cards/Groomer.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

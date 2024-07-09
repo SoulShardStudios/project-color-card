@@ -5,5 +5,5 @@ Card(
     text: "Did you know their colors have meanings?",
     image: "cards/Hydrant.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

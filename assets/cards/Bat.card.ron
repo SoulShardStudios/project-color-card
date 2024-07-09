@@ -5,5 +5,5 @@ Card(
     text: "Hang in there",
     image: "cards/Bat.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

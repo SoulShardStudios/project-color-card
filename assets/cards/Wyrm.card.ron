@@ -5,5 +5,5 @@ Card(
     text: "Not worm, wyrm",
     image: "cards/Wyrm.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

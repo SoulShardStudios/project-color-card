@@ -5,5 +5,5 @@ Card(
     text: "When all you know is dying, would you surrender as well?",
     image: "cards/Mummy.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

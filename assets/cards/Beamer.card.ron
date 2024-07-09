@@ -5,5 +5,5 @@ Card(
     text: "Wanna watch a movie?",
     image: "cards/Beamer.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

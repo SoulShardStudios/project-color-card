@@ -5,5 +5,5 @@ Card(
     text: "Oo Shinny!",
     image: "cards/Goblin.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

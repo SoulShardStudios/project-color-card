@@ -5,5 +5,5 @@ Card(
     text: "Echo... echo...",
     image: "cards/Echo.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

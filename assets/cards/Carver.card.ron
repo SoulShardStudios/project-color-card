@@ -5,5 +5,5 @@ Card(
     text: "Slice off the unseemly edges",
     image: "cards/Carver.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

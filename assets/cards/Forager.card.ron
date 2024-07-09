@@ -5,5 +5,5 @@ Card(
     text: "Lay down your weapon, and eat",
     image: "cards/Forager.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

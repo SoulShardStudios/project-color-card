@@ -5,5 +5,5 @@ Card(
     text: "Dark or Light, Good or Evil, your path is yours alone",
     image: "cards/Elder.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

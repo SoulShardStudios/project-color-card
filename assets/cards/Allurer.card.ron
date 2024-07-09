@@ -5,5 +5,5 @@ Card(
     text: "No use thinking, just follow.",
     image: "cards/Allurer.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

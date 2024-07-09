@@ -2,8 +2,8 @@ use crate::cards::{get_card_back_image, CardBack, CardBackType};
 use crate::constants::CARD_SLOT_COUNT;
 
 use crate::game_state::{
-    BlueHealthMarker, CardDeckMarker, CardSlot, CardSlotMarker, CardSlotType, CardStats,
-    DiscardMarker, NextTurnCardType, RedHealthMarker, Team,
+    BlueHealthMarker, CardDeckMarker, CardSlot, CardSlotMarker, CardSlotType, DiscardMarker,
+    NextTurnCardType, RedHealthMarker, Team,
 };
 use bevy::prelude::*;
 use bevy::render::texture::{

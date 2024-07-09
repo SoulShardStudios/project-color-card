@@ -5,5 +5,5 @@ Card(
     text: "Hm?",
     image: "cards/Geist.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

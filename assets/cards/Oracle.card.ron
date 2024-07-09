@@ -5,5 +5,5 @@ Card(
     text: "Try something else",
     image: "cards/Oracle.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

@@ -5,5 +5,5 @@ Card(
     text: "Pan guide me",
     image: "cards/Satyr.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

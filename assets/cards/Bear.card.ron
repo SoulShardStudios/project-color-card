@@ -5,5 +5,5 @@ Card(
     text: "He's so huggable!",
     image: "cards/Bear.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

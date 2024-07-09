@@ -5,5 +5,5 @@ Card(
     text: "One of the weakest dragons",
     image: "cards/Lindworm.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

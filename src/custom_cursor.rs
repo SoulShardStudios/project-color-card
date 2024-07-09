@@ -56,7 +56,7 @@ fn manage_custom_cursor_asset(
             return;
         }
     };
-    match cursor.to_owned() {
+    match cursor.clone() {
         CustomCursor::Card {
             card,
             stats: _cursor_stats,

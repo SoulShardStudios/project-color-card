@@ -5,5 +5,5 @@ Card(
     text: "Who leaves a baby in a labyrinth?",
     image: "cards/Minotaur.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

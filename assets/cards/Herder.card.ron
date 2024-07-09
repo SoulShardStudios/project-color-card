@@ -5,5 +5,5 @@ Card(
     text: "One, two, thr... zzz",
     image: "cards/Herder.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

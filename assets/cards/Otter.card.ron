@@ -5,5 +5,5 @@ Card(
     text: "Dwaaaaa!",
     image: "cards/Otter.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

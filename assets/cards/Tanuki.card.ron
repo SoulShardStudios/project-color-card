@@ -5,5 +5,5 @@ Card(
     text: "Wild Grifter",
     image: "cards/Tanuki.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

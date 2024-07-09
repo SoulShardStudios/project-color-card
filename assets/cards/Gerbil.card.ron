@@ -5,5 +5,5 @@ Card(
     text: "Fun fact: they're nocturnal",
     image: "cards/Gerbil.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

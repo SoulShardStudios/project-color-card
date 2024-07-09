@@ -5,5 +5,5 @@ Card(
     text: "90% mouth",
     image: "cards/Clam.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

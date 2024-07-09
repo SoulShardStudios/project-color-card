@@ -5,5 +5,5 @@ Card(
     text: "Idny web developer",
     image: "cards/Spider.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

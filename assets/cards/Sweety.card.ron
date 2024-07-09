@@ -5,5 +5,5 @@ Card(
     text: "Cotton Candy! Cottan Candy Anyone?",
     image: "cards/Sweety.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

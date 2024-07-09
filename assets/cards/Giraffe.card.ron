@@ -5,5 +5,5 @@ Card(
     text: "How's the weather up there?",
     image: "cards/Giraffe.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )

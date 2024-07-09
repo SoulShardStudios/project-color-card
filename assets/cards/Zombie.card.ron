@@ -5,5 +5,5 @@ Card(
     text: "Ruoaugh",
     image: "cards/Zombie.png",
     damage: Some(1),
-    hp: Some(1),
+    hp: Some(10),
 )
