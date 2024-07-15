@@ -218,8 +218,40 @@ fn apply_moves(
             _ => {}
         }
     }
+
+    turn_state.set(TurnState::CombineCards);
+}
+
+fn combine_cards(
+    current_turn_state: Res<State<TurnState>>,
+    card_slot_query: Query<&CardSlot>,
+    current_turn_team: Res<State<CurrentTurnTeam>>,
+    mut game_ui_controller_query: Query<&mut GameController>,
+    cards: Res<Assets<Card>>,
+    mut team_state: ResMut<NextState<CurrentTurnTeam>>,
+    mut turn_state: ResMut<NextState<TurnState>>,
+) {
+    let mut game_ui_controller = match game_ui_controller_query.get_single_mut() {
+        Ok(x) => x,
+        _ => {
+            return;
+        }
+    };
+    if *current_turn_state.get() != TurnState::CombineCards {
+        return;
+    }
+
+    for red_slots in card_slot_query
+        .iter()
+        .filter(|slot| slot.team == Team::Red && slot.slot_type == CardSlotType::Play)
+    {}
+    for blue_slots in card_slot_query
+        .iter()
+        .filter(|slot| slot.team == Team::Blue && slot.slot_type == CardSlotType::Play)
+    {}
+
+    turn_state.set(TurnState::CombineCards);
     team_state.set(CurrentTurnTeam(!current_turn_team.get().0));
-    turn_state.set(TurnState::DrawCards);
 }
 
 pub struct GameUIPlugin;

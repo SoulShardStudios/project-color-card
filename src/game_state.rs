@@ -67,4 +67,5 @@ pub enum TurnState {
     DrawCards,
     PlayCards,
     ApplyMoves,
+    CombineCards,
 }

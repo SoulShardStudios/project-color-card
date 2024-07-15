@@ -148,6 +148,10 @@ impl GameController {
         }
     }
 
+    pub fn get_card_with_colors(&self) {
+        for card in self.valid_new_cards.iter() {}
+    }
+
     fn _clone_iter_current(
         &mut self,
         team: Team,
@@ -290,32 +294,44 @@ fn apply_card_modifications(
                 match query.iter().filter(|(x, _, _, _)| **x == slot).nth(0) {
                     Some((slot, _, _, _)) => {
                         let card = game_ui_controller.get_card(slot).unwrap();
-                        if card.1.hp.is_some() && card.1.hp.unwrap().saturating_sub(damage) == 0 {
-                            slots_to_take = Some(slot.clone());
-                        } else {
-                            card_to_push = Some(card);
+                        match card.1.hp {
+                            Some(x) => {
+                                if x.saturating_sub(damage) == 0 {
+                                    slots_to_take = Some(slot.clone());
+                                } else {
+                                    card_to_push = Some(card);
+                                }
+                            }
+                            None => {}
                         }
                     }
                     _ => {}
                 }
                 match card_to_push {
                     Some(card) => {
+                        let stats = CardStats {
+                            hp: card.1.hp.map(|f| f.saturating_sub(damage)),
+                        };
                         push_card(
                             &mut query,
                             &child_query,
                             &mut text_query,
                             &cards.get(card.0).unwrap(),
-                            &CardStats {
-                                hp: card.1.hp.map(|f| f.saturating_sub(damage)),
-                            },
+                            &stats,
                             slot.clone(),
                         );
+                        game_ui_controller
+                            .current_cards
+                            .insert(slot.clone(), Some((card.0, stats)));
                     }
                     None => {}
                 }
 
                 match slots_to_take {
-                    Some(x) => remove_card(&mut query, x.clone()),
+                    Some(x) => {
+                        remove_card(&mut query, x.clone());
+                        game_ui_controller.current_cards.insert(slot.clone(), None);
+                    }
                     None => {}
                 }
             }
