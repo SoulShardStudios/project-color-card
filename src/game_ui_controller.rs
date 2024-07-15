@@ -1,7 +1,9 @@
 use crate::assets::LoadState;
 use crate::cards::{Card, CardType};
 use crate::constants::CARD_SLOT_COUNT;
-use crate::game_state::{CardSlot, CardSlotType, CardStats, Team};
+use crate::game_state::{
+    BlueHealthMarker, CardSlot, CardSlotType, CardStats, RedHealthMarker, Team,
+};
 use crate::spawn_ui::spawn_game_ui;
 use bevy::prelude::*;
 use bevy_rand::prelude::WyRand;
@@ -140,7 +142,7 @@ impl GameController {
         loop {
             let card_id = self.get_random_card(rng);
             let card = cards.get(card_id).unwrap();
-            if card.card_type == card_type {
+            if card.card_type == card_type && card.colors.len() == 1 {
                 return card_id;
             }
         }
@@ -215,6 +217,48 @@ impl GameController {
     }
 }
 
+fn push_card(
+    query: &mut Query<(&CardSlot, &mut UiImage, &mut Visibility, Entity)>,
+    child_query: &Query<&mut Children>,
+    text_query: &mut Query<&mut Text>,
+    card: &Card,
+    stats: &CardStats,
+    slot: CardSlot,
+) {
+    match query.iter_mut().filter(|(x, _, _, _)| **x == slot).nth(0) {
+        Some((_, mut image, mut visibility, entity)) => {
+            image.texture = card.image_handle.clone();
+            *visibility = Visibility::Visible;
+            for (idx, decendant) in child_query.iter_descendants(entity).enumerate() {
+                for grand_decendant in child_query.iter_descendants(decendant) {
+                    if idx == 0 {
+                        text_query.get_mut(grand_decendant).unwrap().sections[0].value =
+                            card.text.clone();
+                    }
+                    if idx == 1 {
+                        text_query.get_mut(grand_decendant).unwrap().sections[0].value =
+                            stats.hp.map(|hp| hp.to_string()).unwrap_or("".to_string())
+                    }
+                }
+            }
+        }
+        None => {}
+    }
+}
+
+fn remove_card(
+    query: &mut Query<(&CardSlot, &mut UiImage, &mut Visibility, Entity)>,
+    slot: CardSlot,
+) {
+    match query.iter_mut().filter(|(x, _, _, _)| **x == slot).nth(0) {
+        Some(mut x) => {
+            x.1.texture = Handle::default();
+            *x.2 = Visibility::Hidden;
+        }
+        _ => {}
+    }
+}
+
 fn apply_card_modifications(
     mut game_ui_controller_query: Query<&mut GameController>,
     cards: Res<Assets<Card>>,
@@ -231,58 +275,47 @@ fn apply_card_modifications(
 
     for modification in game_ui_controller.card_modifications.clone() {
         match modification {
-            ModifyCardAction::Push { slot, card, stats } => {
-                match query.iter_mut().filter(|(x, _, _, _)| **x == slot).nth(0) {
-                    Some((_, mut image, mut visibility, entity)) => {
-                        let card_asset = cards.get(card).unwrap();
-                        image.texture = card_asset.image_handle.clone();
-                        *visibility = Visibility::Visible;
-                        for (idx, decendant) in child_query.iter_descendants(entity).enumerate() {
-                            for grand_decendant in child_query.iter_descendants(decendant) {
-                                if idx == 0 {
-                                    text_query.get_mut(grand_decendant).unwrap().sections[0]
-                                        .value = card_asset.text.clone();
-                                }
-                                if idx == 1 {
-                                    text_query.get_mut(grand_decendant).unwrap().sections[0].value =
-                                        stats.hp.map(|hp| hp.to_string()).unwrap_or("".to_string())
-                                }
-                            }
-                        }
-                    }
-                    None => {}
-                }
-            }
-            ModifyCardAction::Remove { slot } => {
-                match query.iter_mut().filter(|(x, _, _, _)| **x == slot).nth(0) {
-                    Some(mut x) => {
-                        x.1.texture = Handle::default();
-                        *x.2 = Visibility::Hidden;
-                    }
-                    _ => {}
-                }
-            }
+            ModifyCardAction::Push { slot, card, stats } => push_card(
+                &mut query,
+                &child_query,
+                &mut text_query,
+                &cards.get(card).unwrap(),
+                &stats,
+                slot,
+            ),
+            ModifyCardAction::Remove { slot } => remove_card(&mut query, slot.clone()),
             ModifyCardAction::Damage { slot, damage } => {
-                let mut slots_to_take: Option<CardSlot> = None;
+                let mut slots_to_take = None;
+                let mut card_to_push = None;
                 match query.iter().filter(|(x, _, _, _)| **x == slot).nth(0) {
                     Some((slot, _, _, _)) => {
                         let card = game_ui_controller.get_card(slot).unwrap();
-                        if card.1.hp.is_some() && card.1.hp.map(|f| f - damage).unwrap() == 0 {
+                        if card.1.hp.is_some() && card.1.hp.unwrap().saturating_sub(damage) == 0 {
                             slots_to_take = Some(slot.clone());
                         } else {
-                            game_ui_controller.push_card_at(
-                                slot.clone(),
-                                card.0,
-                                CardStats {
-                                    hp: card.1.hp.map(|f| f - damage),
-                                },
-                            )
+                            card_to_push = Some(card);
                         }
                     }
                     _ => {}
                 }
+                match card_to_push {
+                    Some(card) => {
+                        push_card(
+                            &mut query,
+                            &child_query,
+                            &mut text_query,
+                            &cards.get(card.0).unwrap(),
+                            &CardStats {
+                                hp: card.1.hp.map(|f| f.saturating_sub(damage)),
+                            },
+                            slot.clone(),
+                        );
+                    }
+                    None => {}
+                }
+
                 match slots_to_take {
-                    Some(x) => game_ui_controller.take_card(x),
+                    Some(x) => remove_card(&mut query, x.clone()),
                     None => {}
                 }
             }
@@ -295,6 +328,42 @@ fn spawn_game_ui_controller(mut commands: Commands, cards: Res<Assets<Card>>) {
     commands.spawn(GameController::new(&cards));
 }
 
+fn update_team_health(
+    mut game_ui_controller_query: Query<&mut GameController>,
+    red_health_query: Query<Entity, With<RedHealthMarker>>,
+    blue_health_query: Query<Entity, With<BlueHealthMarker>>,
+    child_query: Query<&mut Children>,
+    mut text_query: Query<&mut Text>,
+) {
+    let game_ui_controller = match game_ui_controller_query.get_single_mut() {
+        Ok(x) => x,
+        _ => {
+            return;
+        }
+    };
+    if !game_ui_controller.team_health_updated {
+        return;
+    }
+    for red_health in red_health_query.iter() {
+        for decendant in child_query.iter_descendants(red_health) {
+            text_query
+                .get_mut(decendant)
+                .expect("expected text")
+                .sections[0]
+                .value = game_ui_controller.team_health[&Team::Red].to_string();
+        }
+    }
+    for blue_health in blue_health_query.iter() {
+        for decendant in child_query.iter_descendants(blue_health) {
+            text_query
+                .get_mut(decendant)
+                .expect("expected text")
+                .sections[0]
+                .value = game_ui_controller.team_health[&Team::Blue].to_string();
+        }
+    }
+}
+
 pub struct GameUiControllerPlugin;
 
 impl Plugin for GameUiControllerPlugin {
@@ -303,6 +372,6 @@ impl Plugin for GameUiControllerPlugin {
             OnEnter(LoadState::Loaded),
             (spawn_game_ui_controller, spawn_game_ui),
         )
-        .add_systems(Update, apply_card_modifications);
+        .add_systems(Update, (apply_card_modifications, update_team_health));
     }
 }
