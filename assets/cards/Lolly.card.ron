@@ -3,7 +3,5 @@ Card(
     colors: [Blue, Red],
     card_type: Food,
     text: "Sucker",
-    image: "cards/Lolly.png",
-    damage: Some(1),
-    hp: Some(10),
+    image: "cards/Lolly.png"
 )
