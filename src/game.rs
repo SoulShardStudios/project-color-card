@@ -250,7 +250,7 @@ fn combine_cards(
         .filter(|slot| slot.team == Team::Blue && slot.slot_type == CardSlotType::Play)
     {}
 
-    turn_state.set(TurnState::CombineCards);
+    turn_state.set(TurnState::DrawCards);
     team_state.set(CurrentTurnTeam(!current_turn_team.get().0));
 }
 
