@@ -269,6 +269,6 @@ impl Plugin for GameUIPlugin {
             .add_plugins(CardAssetPlugin)
             .add_plugins(CardBackAssetPlugin)
             .add_plugins(GameUiControllerPlugin)
-            .add_systems(Update, (draw_card, play_card, apply_moves));
+            .add_systems(Update, (draw_card, play_card, apply_moves, combine_cards));
     }
 }
