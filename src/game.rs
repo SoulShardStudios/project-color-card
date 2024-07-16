@@ -210,8 +210,10 @@ fn play_card(
 
 fn cards_can_combine(first_card: &Card, second_card: &Card) -> bool {
     return vec![CardType::Hero, CardType::Beast].contains(&first_card.card_type)
-        && second_card.colors.len() == 1
-        && !first_card.colors.contains(&second_card.colors[0])
+        && second_card
+            .colors
+            .iter()
+            .all(|x| !first_card.colors.contains(x))
         && second_card.card_type == CardType::Equipment;
 }
 
