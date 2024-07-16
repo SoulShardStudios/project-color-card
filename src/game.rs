@@ -97,6 +97,7 @@ fn play_card(
     current_turn_state: Res<State<TurnState>>,
     mut turn_state: ResMut<NextState<TurnState>>,
     current_turn_team: Res<State<CurrentTurnTeam>>,
+    cards: Res<Assets<Card>>,
 ) {
     if *current_turn_state.get() != TurnState::PlayCards {
         return;
@@ -152,9 +153,50 @@ fn play_card(
                 if !slot.team == current_turn_team.get().0 && slot.slot_type == CardSlotType::Play {
                     continue;
                 }
+
                 match *interaction {
                     Interaction::Pressed => {
-                        game_ui_controller.push_card_into_stack(slot.clone(), card, stats.clone());
+                        match game_ui_controller.get_card(slot) {
+                            Some(x) => {
+                                let slot_card = cards.get(x.0).unwrap();
+                                let held_card = cards.get(card).unwrap();
+                                if cards_can_combine(slot_card, held_card)
+                                    || cards_can_combine(held_card, slot_card)
+                                {
+                                    let mut colors = slot_card.colors.clone();
+                                    colors.extend(held_card.colors.clone());
+                                    match game_ui_controller.get_card_with_colors(colors, &*cards) {
+                                        Some(x) => {
+                                            game_ui_controller.push_card_at(
+                                                slot.clone(),
+                                                x.1,
+                                                CardStats { hp: x.0.hp },
+                                            );
+                                        }
+                                        None => {
+                                            game_ui_controller.push_card_into_stack(
+                                                slot.clone(),
+                                                card,
+                                                stats.clone(),
+                                            );
+                                        }
+                                    }
+                                } else {
+                                    game_ui_controller.push_card_into_stack(
+                                        slot.clone(),
+                                        card,
+                                        stats.clone(),
+                                    );
+                                }
+                            }
+                            None => {
+                                game_ui_controller.push_card_into_stack(
+                                    slot.clone(),
+                                    card,
+                                    stats.clone(),
+                                );
+                            }
+                        };
                         game_ui_controller.stack_cards(slot.team, slot.slot_type);
                         *custom_cursor = CustomCursor::Default;
                         turn_state.set(TurnState::ApplyMoves);
@@ -164,6 +206,13 @@ fn play_card(
             }
         }
     }
+}
+
+fn cards_can_combine(first_card: &Card, second_card: &Card) -> bool {
+    return vec![CardType::Hero, CardType::Beast].contains(&first_card.card_type)
+        && second_card.colors.len() == 1
+        && !first_card.colors.contains(&second_card.colors[0])
+        && second_card.card_type == CardType::Equipment;
 }
 
 fn apply_moves(
@@ -218,66 +267,6 @@ fn apply_moves(
             _ => {}
         }
     }
-
-    turn_state.set(TurnState::DrawCards);
-    team_state.set(CurrentTurnTeam(!current_turn_team.get().0));
-}
-
-fn combine_cards(
-    current_turn_state: Res<State<TurnState>>,
-    card_slot_query: Query<&CardSlot>,
-    current_turn_team: Res<State<CurrentTurnTeam>>,
-    mut game_ui_controller_query: Query<&mut GameController>,
-    cards: Res<Assets<Card>>,
-    mut team_state: ResMut<NextState<CurrentTurnTeam>>,
-    mut turn_state: ResMut<NextState<TurnState>>,
-) {
-    let mut game_ui_controller = match game_ui_controller_query.get_single_mut() {
-        Ok(x) => x,
-        _ => {
-            return;
-        }
-    };
-    if *current_turn_state.get() != TurnState::CombineCards {
-        return;
-    }
-
-    let mut combine_cards = |team| {
-        for (slot_a, slot_b) in card_slot_query
-            .iter()
-            .filter(|slot| slot.team == team && slot.slot_type == CardSlotType::Play)
-            .tuple_windows()
-        {
-            let (card_a, card_b) = match (
-                game_ui_controller.get_card(slot_a),
-                game_ui_controller.get_card(slot_b),
-            ) {
-                (Some(a), Some(b)) => (cards.get(a.0).unwrap(), cards.get(b.0).unwrap()),
-                _ => {
-                    continue;
-                }
-            };
-
-            for color in card_b.colors.iter() {
-                if card_a.colors.contains(color) {
-                    continue;
-                }
-            }
-            let mut card_colors = card_b.colors.clone();
-            card_colors.extend(card_a.colors.clone());
-
-            match game_ui_controller.get_card_with_colors(card_colors, &*cards) {
-                Some(x) => {
-                    game_ui_controller.remove_card(slot_b.clone());
-                    game_ui_controller.push_card_at(slot_a.clone(), x.1, CardStats { hp: x.0.hp });
-                    game_ui_controller.stack_cards(team, CardSlotType::Play);
-                }
-                None => {}
-            }
-        }
-    };
-    combine_cards(Team::Red);
-    combine_cards(Team::Blue);
 
     turn_state.set(TurnState::DrawCards);
     team_state.set(CurrentTurnTeam(!current_turn_team.get().0));
