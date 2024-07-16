@@ -107,16 +107,14 @@ impl GameController {
     pub fn push_card_at(&mut self, slot: CardSlot, card: AssetId<Card>, stats: CardStats) {
         self.card_modifications.push(ModifyCardAction::Push {
             slot: slot.clone(),
-            card: card,
+            card,
             stats: stats.clone(),
         });
-        self.current_cards.insert(slot, Some((card, stats)));
     }
 
     pub fn remove_card(&mut self, slot: CardSlot) {
         self.card_modifications
             .push(ModifyCardAction::Remove { slot: slot.clone() });
-        self.current_cards.insert(slot, None);
     }
 
     pub fn damage_card(&mut self, slot: &CardSlot, damage: u32) {
@@ -289,15 +287,23 @@ fn apply_card_modifications(
 
     for modification in game_ui_controller.card_modifications.clone() {
         match modification {
-            ModifyCardAction::Push { slot, card, stats } => push_card(
-                &mut query,
-                &child_query,
-                &mut text_query,
-                &cards.get(card).unwrap(),
-                &stats,
-                slot,
-            ),
-            ModifyCardAction::Remove { slot } => remove_card(&mut query, slot.clone()),
+            ModifyCardAction::Push { slot, card, stats } => {
+                push_card(
+                    &mut query,
+                    &child_query,
+                    &mut text_query,
+                    &cards.get(card).unwrap(),
+                    &stats,
+                    slot.clone(),
+                );
+                game_ui_controller
+                    .current_cards
+                    .insert(slot, Some((card, stats)));
+            }
+            ModifyCardAction::Remove { slot } => {
+                remove_card(&mut query, slot.clone());
+                game_ui_controller.current_cards.insert(slot, None);
+            }
             ModifyCardAction::Damage { slot, damage } => {
                 let mut slots_to_take = None;
                 let mut card_to_push = None;
@@ -347,10 +353,9 @@ fn apply_card_modifications(
             }
         }
     }
+    game_ui_controller.card_modifications.clear();
     game_ui_controller.stack_cards(Team::Red, CardSlotType::Play);
     game_ui_controller.stack_cards(Team::Blue, CardSlotType::Play);
-
-    game_ui_controller.card_modifications.clear();
 }
 
 fn spawn_game_ui_controller(mut commands: Commands, cards: Res<Assets<Card>>) {

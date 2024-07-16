@@ -172,6 +172,7 @@ fn apply_moves(
     current_turn_team: Res<State<CurrentTurnTeam>>,
     mut game_ui_controller_query: Query<&mut GameController>,
     cards: Res<Assets<Card>>,
+    mut team_state: ResMut<NextState<CurrentTurnTeam>>,
     mut turn_state: ResMut<NextState<TurnState>>,
 ) {
     let mut game_ui_controller = match game_ui_controller_query.get_single_mut() {
@@ -218,7 +219,8 @@ fn apply_moves(
         }
     }
 
-    turn_state.set(TurnState::CombineCards);
+    turn_state.set(TurnState::DrawCards);
+    team_state.set(CurrentTurnTeam(!current_turn_team.get().0));
 }
 
 fn combine_cards(
@@ -296,6 +298,6 @@ impl Plugin for GameUIPlugin {
             .add_plugins(CardAssetPlugin)
             .add_plugins(CardBackAssetPlugin)
             .add_plugins(GameUiControllerPlugin)
-            .add_systems(Update, (draw_card, play_card, apply_moves, combine_cards));
+            .add_systems(Update, (draw_card, play_card, apply_moves));
     }
 }
