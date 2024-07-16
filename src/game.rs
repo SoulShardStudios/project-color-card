@@ -11,6 +11,7 @@ use crate::game_ui_controller::{GameController, GameUiControllerPlugin};
 use bevy::prelude::*;
 use bevy_rand::prelude::WyRand;
 use bevy_rand::resource::GlobalEntropy;
+use itertools::Itertools;
 use num_traits::FromPrimitive;
 use rand::Rng;
 
@@ -134,7 +135,7 @@ fn play_card(
                                 card: card.0,
                                 stats: game_ui_controller.get_card(slot).unwrap().1,
                             };
-                            game_ui_controller.take_card(slot.clone());
+                            game_ui_controller.remove_card(slot.clone());
                         }
                         _ => {}
                     },
@@ -148,8 +149,7 @@ fn play_card(
                 let slot = card_slot_query
                     .get(children_query.iter_descendants(entity).nth(0).unwrap())
                     .unwrap();
-                if !(slot.team == current_turn_team.get().0 && slot.slot_type == CardSlotType::Play)
-                {
+                if !slot.team == current_turn_team.get().0 && slot.slot_type == CardSlotType::Play {
                     continue;
                 }
                 match *interaction {
@@ -172,7 +172,6 @@ fn apply_moves(
     current_turn_team: Res<State<CurrentTurnTeam>>,
     mut game_ui_controller_query: Query<&mut GameController>,
     cards: Res<Assets<Card>>,
-    mut team_state: ResMut<NextState<CurrentTurnTeam>>,
     mut turn_state: ResMut<NextState<TurnState>>,
 ) {
     let mut game_ui_controller = match game_ui_controller_query.get_single_mut() {
@@ -241,14 +240,42 @@ fn combine_cards(
         return;
     }
 
-    for red_slots in card_slot_query
-        .iter()
-        .filter(|slot| slot.team == Team::Red && slot.slot_type == CardSlotType::Play)
-    {}
-    for blue_slots in card_slot_query
-        .iter()
-        .filter(|slot| slot.team == Team::Blue && slot.slot_type == CardSlotType::Play)
-    {}
+    let mut combine_cards = |team| {
+        for (slot_a, slot_b) in card_slot_query
+            .iter()
+            .filter(|slot| slot.team == team && slot.slot_type == CardSlotType::Play)
+            .tuple_windows()
+        {
+            let (card_a, card_b) = match (
+                game_ui_controller.get_card(slot_a),
+                game_ui_controller.get_card(slot_b),
+            ) {
+                (Some(a), Some(b)) => (cards.get(a.0).unwrap(), cards.get(b.0).unwrap()),
+                _ => {
+                    continue;
+                }
+            };
+
+            for color in card_b.colors.iter() {
+                if card_a.colors.contains(color) {
+                    continue;
+                }
+            }
+            let mut card_colors = card_b.colors.clone();
+            card_colors.extend(card_a.colors.clone());
+
+            match game_ui_controller.get_card_with_colors(card_colors, &*cards) {
+                Some(x) => {
+                    game_ui_controller.remove_card(slot_b.clone());
+                    game_ui_controller.push_card_at(slot_a.clone(), x.1, CardStats { hp: x.0.hp });
+                    game_ui_controller.stack_cards(team, CardSlotType::Play);
+                }
+                None => {}
+            }
+        }
+    };
+    combine_cards(Team::Red);
+    combine_cards(Team::Blue);
 
     turn_state.set(TurnState::DrawCards);
     team_state.set(CurrentTurnTeam(!current_turn_team.get().0));

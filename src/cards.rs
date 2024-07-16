@@ -6,7 +6,7 @@ use bevy::{
     utils::BoxedFuture,
 };
 use serde::{Deserialize, Serialize};
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[repr(i32)]
 pub enum CardColor {
     Red,

@@ -1,5 +1,5 @@
 use crate::assets::LoadState;
-use crate::cards::{Card, CardType};
+use crate::cards::{Card, CardColor, CardType};
 use crate::constants::CARD_SLOT_COUNT;
 use crate::game_state::{
     BlueHealthMarker, CardSlot, CardSlotType, CardStats, RedHealthMarker, Team,
@@ -79,9 +79,9 @@ impl GameController {
 
     pub fn card_stack_full(&self, team: Team, slot_type: CardSlotType) -> bool {
         for slot in (0..CARD_SLOT_COUNT).into_iter().map(|id| CardSlot {
-            team: team,
-            slot_type: slot_type,
-            id: id,
+            team,
+            slot_type,
+            id,
         }) {
             if self.get_card(&slot).is_none() {
                 return false;
@@ -113,7 +113,7 @@ impl GameController {
         self.current_cards.insert(slot, Some((card, stats)));
     }
 
-    pub fn take_card(&mut self, slot: CardSlot) {
+    pub fn remove_card(&mut self, slot: CardSlot) {
         self.card_modifications
             .push(ModifyCardAction::Remove { slot: slot.clone() });
         self.current_cards.insert(slot, None);
@@ -122,7 +122,7 @@ impl GameController {
     pub fn damage_card(&mut self, slot: &CardSlot, damage: u32) {
         self.card_modifications.push(ModifyCardAction::Damage {
             slot: slot.clone(),
-            damage: damage,
+            damage,
         });
     }
 
@@ -148,8 +148,18 @@ impl GameController {
         }
     }
 
-    pub fn get_card_with_colors(&self) {
-        for card in self.valid_new_cards.iter() {}
+    pub fn get_card_with_colors<'a>(
+        &self,
+        colors: Vec<CardColor>,
+        cards: &'a Assets<Card>,
+    ) -> Option<(&'a Card, AssetId<Card>)> {
+        for card_id in self.valid_new_cards.iter() {
+            let card = cards.get(*card_id).unwrap();
+            if card.colors == colors {
+                return Some((card, *card_id));
+            }
+        }
+        return None;
     }
 
     fn _clone_iter_current(
@@ -215,7 +225,7 @@ impl GameController {
                     card.0,
                     card.1.clone(),
                 );
-                self.take_card(slot);
+                self.remove_card(slot);
             }
         }
     }
@@ -292,19 +302,19 @@ fn apply_card_modifications(
                 let mut slots_to_take = None;
                 let mut card_to_push = None;
                 match query.iter().filter(|(x, _, _, _)| **x == slot).nth(0) {
-                    Some((slot, _, _, _)) => {
-                        let card = game_ui_controller.get_card(slot).unwrap();
-                        match card.1.hp {
-                            Some(x) => {
-                                if x.saturating_sub(damage) == 0 {
+                    Some((slot, _, _, _)) => match game_ui_controller.get_card(slot) {
+                        None => {}
+                        Some(card) => match card.1.hp {
+                            Some(hp) => {
+                                if hp.saturating_sub(damage) == 0 {
                                     slots_to_take = Some(slot.clone());
                                 } else {
                                     card_to_push = Some(card);
                                 }
                             }
                             None => {}
-                        }
-                    }
+                        },
+                    },
                     _ => {}
                 }
                 match card_to_push {
@@ -337,6 +347,9 @@ fn apply_card_modifications(
             }
         }
     }
+    game_ui_controller.stack_cards(Team::Red, CardSlotType::Play);
+    game_ui_controller.stack_cards(Team::Blue, CardSlotType::Play);
+
     game_ui_controller.card_modifications.clear();
 }
 
