@@ -3,5 +3,6 @@ Card(
     colors: [Teal],
     card_type: Food,
     text: "This is poison",
-    image: "cards/Hemlock.png"
+    image: "cards/Hemlock.png",
+    heal_value: Some(3),
 )

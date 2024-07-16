@@ -3,5 +3,6 @@ Card(
     colors: [Yellow, Red],
     card_type: Food,
     text: "Mangoing. Mangone.",
-    image: "cards/Mango.png"
+    image: "cards/Mango.png",
+    heal_value: Some(3),
 )

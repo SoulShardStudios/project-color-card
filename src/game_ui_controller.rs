@@ -32,6 +32,7 @@ pub struct GameController {
     team_health: BTreeMap<Team, u32>,
     current_cards: BTreeMap<CardSlot, Option<(AssetId<Card>, CardStats)>>,
     valid_new_cards: Vec<AssetId<Card>>,
+    card_ids: Vec<AssetId<Card>>,
     card_modifications: Vec<ModifyCardAction>,
     team_health_updated: bool,
 }
@@ -42,12 +43,12 @@ impl GameController {
             BTreeMap::new();
         for team in [Team::Blue, Team::Red] {
             for slot_type in [CardSlotType::Hand, CardSlotType::Play] {
-                for slot_id in 0..CARD_SLOT_COUNT {
+                for id in 0..CARD_SLOT_COUNT {
                     card_names.insert(
                         CardSlot {
-                            id: slot_id,
-                            slot_type: slot_type,
-                            team: team,
+                            id,
+                            slot_type,
+                            team,
                         },
                         None,
                     );
@@ -63,6 +64,7 @@ impl GameController {
             team_health: BTreeMap::from_iter([(Team::Red, 100), (Team::Blue, 100)]),
             current_cards: card_names,
             valid_new_cards,
+            card_ids: cards.iter().map(|(id, _card)| id).collect(),
             card_modifications: vec![],
             team_health_updated: false,
         }
@@ -140,7 +142,7 @@ impl GameController {
         loop {
             let card_id = self.get_random_card(rng);
             let card = cards.get(card_id).unwrap();
-            if card.card_type == card_type && card.colors.len() == 1 {
+            if card.card_type == card_type {
                 return card_id;
             }
         }
@@ -150,10 +152,11 @@ impl GameController {
         &self,
         colors: Vec<CardColor>,
         cards: &'a Assets<Card>,
+        card_type: CardType,
     ) -> Option<(&'a Card, AssetId<Card>)> {
-        for card_id in self.valid_new_cards.iter() {
+        for card_id in self.card_ids.iter() {
             let card = cards.get(*card_id).unwrap();
-            if card.colors == colors {
+            if card.colors == colors && card.card_type == card_type {
                 return Some((card, *card_id));
             }
         }

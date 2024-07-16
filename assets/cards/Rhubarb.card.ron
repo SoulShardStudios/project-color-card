@@ -4,4 +4,5 @@ Card(
     card_type: Food,
     text: "Tastes bitter",
     image: "cards/Rhubarb.png",
+    heal_value: Some(3),
 )

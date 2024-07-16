@@ -3,5 +3,6 @@ Card(
     colors: [Purple, Red],
     card_type: Food,
     text: "Ever have these stuffed?",
-    image: "cards/Fig.png"
+    image: "cards/Fig.png",
+    heal_value: Some(3),
 )

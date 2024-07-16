@@ -11,7 +11,6 @@ use crate::game_ui_controller::{GameController, GameUiControllerPlugin};
 use bevy::prelude::*;
 use bevy_rand::prelude::WyRand;
 use bevy_rand::resource::GlobalEntropy;
-use itertools::Itertools;
 use num_traits::FromPrimitive;
 use rand::Rng;
 
@@ -165,7 +164,11 @@ fn play_card(
                                 {
                                     let mut colors = slot_card.colors.clone();
                                     colors.extend(held_card.colors.clone());
-                                    match game_ui_controller.get_card_with_colors(colors, &*cards) {
+                                    match game_ui_controller.get_card_with_colors(
+                                        colors,
+                                        &*cards,
+                                        get_upgraded_card_type(slot_card, held_card),
+                                    ) {
                                         Some(x) => {
                                             game_ui_controller.push_card_at(
                                                 slot.clone(),
@@ -215,6 +218,16 @@ fn cards_can_combine(first_card: &Card, second_card: &Card) -> bool {
             .iter()
             .all(|x| !first_card.colors.contains(x))
         && second_card.card_type == CardType::Equipment;
+}
+
+fn get_upgraded_card_type(first_card: &Card, second_card: &Card) -> CardType {
+    if vec![CardType::Hero, CardType::Beast].contains(&first_card.card_type) {
+        return first_card.card_type;
+    }
+    if vec![CardType::Hero, CardType::Beast].contains(&second_card.card_type) {
+        return second_card.card_type;
+    }
+    panic!("unreachable")
 }
 
 fn apply_moves(

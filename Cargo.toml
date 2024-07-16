@@ -9,7 +9,6 @@ bevy = "0.13.2"
 bevy-inspector-egui = "^0.23"
 bevy_asset_loader = "0.20.1"
 bevy_rand = { version = "0.5.2", features = ["wyrand"] }
-itertools = "0.12.1"
 num-derive = "0.4.2"
 num-traits = "0.2.19"
 rand = "0.8.5"

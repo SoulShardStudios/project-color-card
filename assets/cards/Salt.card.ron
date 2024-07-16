@@ -4,4 +4,5 @@ Card(
     card_type: Food,
     text: "Just a pinch",
     image: "cards/Salt.png",
+    heal_value: Some(3),
 )

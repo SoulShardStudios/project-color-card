@@ -3,5 +3,6 @@ Card(
     colors: [Teal, Yellow],
     card_type: Food,
     text: "Smells like cyanide",
-    image: "cards/Almond.png"
+    image: "cards/Almond.png",
+    heal_value: Some(3),
 )

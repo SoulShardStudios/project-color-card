@@ -3,5 +3,6 @@ Card(
     colors: [Green],
     card_type: Food,
     text: "Apple's taller brother",
-    image: "cards/Pear.png"
+    image: "cards/Pear.png",
+    heal_value: Some(3),
 )

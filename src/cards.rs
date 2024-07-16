@@ -53,6 +53,7 @@ pub struct Card {
     pub image_handle: Handle<Image>,
     pub damage: Option<u32>,
     pub hp: Option<u32>,
+    pub heal_value: Option<u32>,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
