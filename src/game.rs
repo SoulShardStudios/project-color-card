@@ -42,10 +42,12 @@ pub fn draw_card(
     for interaction in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                let random_card_of_type = game_ui_controller.get_random_card_of_type(
+                let card_color_count = rng.gen_range(1..3);
+                let random_card_of_type = game_ui_controller.get_random_card_of_type_with_len(
                     &mut rng,
                     &cards,
                     current_card_type_state.get().0.clone(),
+                    card_color_count,
                 );
                 let random_card_asset = cards.get(random_card_of_type).unwrap();
                 match game_ui_controller
@@ -107,10 +109,6 @@ fn play_card(
             return;
         }
     };
-    if game_ui_controller.card_stack_full(current_turn_team.get().0, CardSlotType::Play) {
-        turn_state.set(TurnState::ApplyMoves);
-        return;
-    }
     let mut custom_cursor = match custom_cursor_query.get_single_mut() {
         Ok(x) => x,
         _ => {
@@ -261,10 +259,10 @@ fn apply_moves(
         }))
     {
         let foe_card = game_ui_controller
-            .get_card(current_slot)
+            .get_card(foe_slot)
             .map(|x| cards.get(x.0).unwrap());
         let current_card = game_ui_controller
-            .get_card(foe_slot)
+            .get_card(current_slot)
             .map(|x| cards.get(x.0).unwrap());
         match (current_card, foe_card) {
             (Some(current), Some(foe)) => {

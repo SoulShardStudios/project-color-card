@@ -16,10 +16,6 @@ enum ModifyCardAction {
     Remove {
         slot: CardSlot,
     },
-    Damage {
-        slot: CardSlot,
-        damage: u32,
-    },
     Push {
         slot: CardSlot,
         card: AssetId<Card>,
@@ -38,7 +34,7 @@ pub struct GameController {
 }
 
 impl GameController {
-    pub fn new(cards: &Res<Assets<Card>>) -> Self {
+    pub fn new(cards: &Res<Assets<Card>>, rng: &mut ResMut<GlobalEntropy<WyRand>>) -> Self {
         let mut card_names: BTreeMap<CardSlot, Option<(AssetId<Card>, CardStats)>> =
             BTreeMap::new();
         for team in [Team::Blue, Team::Red] {
@@ -60,14 +56,32 @@ impl GameController {
             .filter(|(_id, card)| -> bool { card.colors.len() < 3 })
             .map(|x| -> AssetId<Card> { x.0 })
             .collect();
-        GameController {
+        let mut gc = GameController {
             team_health: BTreeMap::from_iter([(Team::Red, 100), (Team::Blue, 100)]),
             current_cards: card_names,
             valid_new_cards,
             card_ids: cards.iter().map(|(id, _card)| id).collect(),
             card_modifications: vec![],
             team_health_updated: false,
+        };
+
+        for _ in 0..4 {
+            for team in vec![Team::Blue, Team::Red].iter() {
+                let card = gc.get_random_card(rng);
+                gc.push_card_into_stack(
+                    CardSlot {
+                        id: 0,
+                        team: team.clone(),
+                        slot_type: CardSlotType::Hand,
+                    },
+                    card,
+                    CardStats {
+                        hp: cards.get(card).unwrap().hp,
+                    },
+                );
+            }
         }
+        gc
     }
 
     pub fn get_team_health(&self, team: Team) -> u32 {
@@ -112,18 +126,47 @@ impl GameController {
             card,
             stats: stats.clone(),
         });
+        self.current_cards.insert(slot, Some((card, stats)));
     }
 
     pub fn remove_card(&mut self, slot: CardSlot) {
         self.card_modifications
             .push(ModifyCardAction::Remove { slot: slot.clone() });
+        self.current_cards.insert(slot, None);
     }
 
     pub fn damage_card(&mut self, slot: &CardSlot, damage: u32) {
-        self.card_modifications.push(ModifyCardAction::Damage {
-            slot: slot.clone(),
-            damage,
-        });
+        let mut slots_to_take = None;
+        let mut card_to_push = None;
+        match self.get_card(slot) {
+            None => {}
+            Some(card) => match card.1.hp {
+                Some(hp) => {
+                    if hp.saturating_sub(damage) == 0 {
+                        slots_to_take = Some(slot.clone());
+                    } else {
+                        card_to_push = Some(card);
+                    }
+                }
+                None => {}
+            },
+        }
+        match card_to_push {
+            Some(card) => {
+                let stats = CardStats {
+                    hp: card.1.hp.map(|f| f.saturating_sub(damage)),
+                };
+                self.push_card_at(slot.clone(), card.0, stats);
+            }
+            None => {}
+        }
+
+        match slots_to_take {
+            Some(x) => {
+                self.remove_card(x.clone());
+            }
+            None => {}
+        }
     }
 
     pub fn get_random_card(&self, rng: &mut ResMut<GlobalEntropy<WyRand>>) -> AssetId<Card> {
@@ -133,16 +176,17 @@ impl GameController {
         return self.valid_new_cards[rng.gen_range(0usize..self.valid_new_cards.len() - 1)];
     }
 
-    pub fn get_random_card_of_type(
+    pub fn get_random_card_of_type_with_len(
         &self,
         rng: &mut ResMut<GlobalEntropy<WyRand>>,
         cards: &Res<Assets<Card>>,
         card_type: CardType,
+        color_len: usize,
     ) -> AssetId<Card> {
         loop {
             let card_id = self.get_random_card(rng);
             let card = cards.get(card_id).unwrap();
-            if card.card_type == card_type {
+            if card.card_type == card_type && card.colors.len() == color_len {
                 return card_id;
             }
         }
@@ -299,60 +343,9 @@ fn apply_card_modifications(
                     &stats,
                     slot.clone(),
                 );
-                game_ui_controller
-                    .current_cards
-                    .insert(slot, Some((card, stats)));
             }
             ModifyCardAction::Remove { slot } => {
                 remove_card(&mut query, slot.clone());
-                game_ui_controller.current_cards.insert(slot, None);
-            }
-            ModifyCardAction::Damage { slot, damage } => {
-                let mut slots_to_take = None;
-                let mut card_to_push = None;
-                match query.iter().filter(|(x, _, _, _)| **x == slot).nth(0) {
-                    Some((slot, _, _, _)) => match game_ui_controller.get_card(slot) {
-                        None => {}
-                        Some(card) => match card.1.hp {
-                            Some(hp) => {
-                                if hp.saturating_sub(damage) == 0 {
-                                    slots_to_take = Some(slot.clone());
-                                } else {
-                                    card_to_push = Some(card);
-                                }
-                            }
-                            None => {}
-                        },
-                    },
-                    _ => {}
-                }
-                match card_to_push {
-                    Some(card) => {
-                        let stats = CardStats {
-                            hp: card.1.hp.map(|f| f.saturating_sub(damage)),
-                        };
-                        push_card(
-                            &mut query,
-                            &child_query,
-                            &mut text_query,
-                            &cards.get(card.0).unwrap(),
-                            &stats,
-                            slot.clone(),
-                        );
-                        game_ui_controller
-                            .current_cards
-                            .insert(slot.clone(), Some((card.0, stats)));
-                    }
-                    None => {}
-                }
-
-                match slots_to_take {
-                    Some(x) => {
-                        remove_card(&mut query, x.clone());
-                        game_ui_controller.current_cards.insert(slot.clone(), None);
-                    }
-                    None => {}
-                }
             }
         }
     }
@@ -361,8 +354,12 @@ fn apply_card_modifications(
     game_ui_controller.stack_cards(Team::Blue, CardSlotType::Play);
 }
 
-fn spawn_game_ui_controller(mut commands: Commands, cards: Res<Assets<Card>>) {
-    commands.spawn(GameController::new(&cards));
+fn spawn_game_ui_controller(
+    mut commands: Commands,
+    cards: Res<Assets<Card>>,
+    mut rng: ResMut<GlobalEntropy<WyRand>>,
+) {
+    commands.spawn(GameController::new(&cards, &mut rng));
 }
 
 fn update_team_health(
