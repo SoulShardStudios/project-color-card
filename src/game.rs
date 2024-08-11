@@ -226,11 +226,11 @@ fn play_card(
                                 card,
                                 stats.clone(),
                             );
+                        } else {
+                            turn_state.set(TurnState::ApplyMoves);
                         }
-
                         game_ui_controller.stack_cards(slot.team, slot.slot_type);
                         *custom_cursor = CustomCursor::Default;
-                        turn_state.set(TurnState::ApplyMoves);
                     }
                     _ => {}
                 }
