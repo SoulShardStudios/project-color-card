@@ -1,6 +1,6 @@
 use crate::assets::LoadState;
 use crate::cards::Card;
-use crate::game_state::CardStats;
+use crate::game_state::{CardSlot, CardStats};
 use bevy::prelude::*;
 
 #[derive(Component, Default, Clone)]
@@ -10,6 +10,7 @@ pub enum CustomCursor {
     Card {
         card: AssetId<Card>,
         stats: CardStats,
+        original_slot: CardSlot,
     },
 }
 
@@ -60,6 +61,7 @@ fn manage_custom_cursor_asset(
         CustomCursor::Card {
             card,
             stats: _cursor_stats,
+            original_slot: _original_slot,
         } => {
             match cards.get(card) {
                 Some(x) => image.texture = x.image_handle.clone(),

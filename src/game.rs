@@ -132,6 +132,7 @@ fn play_card(
                             *custom_cursor = CustomCursor::Card {
                                 card: card.0,
                                 stats: game_ui_controller.get_card(slot).unwrap().1,
+                                original_slot: slot.clone(),
                             };
                             game_ui_controller.remove_card(slot.clone());
                         }
@@ -142,7 +143,12 @@ fn play_card(
             }
         }
         // place custom cursor down in play and adjust slots
-        CustomCursor::Card { card, stats } => {
+        CustomCursor::Card {
+            card,
+            stats,
+            original_slot,
+        } => {
+            let held_card = cards.get(card).unwrap();
             for (interaction, entity) in &mut interaction_query {
                 let slot = card_slot_query
                     .get(children_query.iter_descendants(entity).nth(0).unwrap())
@@ -150,13 +156,14 @@ fn play_card(
                 if !slot.team == current_turn_team.get().0 && slot.slot_type == CardSlotType::Play {
                     continue;
                 }
-
+                let mut failed_to_combine_but_is_placing = false;
+                let mut failover_back_to_original = false;
                 match *interaction {
                     Interaction::Pressed => {
                         match game_ui_controller.get_card(slot) {
                             Some(x) => {
                                 let slot_card = cards.get(x.0).unwrap();
-                                let held_card = cards.get(card).unwrap();
+
                                 if cards_can_combine(slot_card, held_card)
                                     || cards_can_combine(held_card, slot_card)
                                 {
@@ -175,29 +182,52 @@ fn play_card(
                                             );
                                         }
                                         None => {
-                                            game_ui_controller.push_card_into_stack(
-                                                slot.clone(),
-                                                card,
-                                                stats.clone(),
-                                            );
+                                            failover_back_to_original = true;
                                         }
                                     }
                                 } else {
-                                    game_ui_controller.push_card_into_stack(
-                                        slot.clone(),
-                                        card,
-                                        stats.clone(),
-                                    );
+                                    failed_to_combine_but_is_placing = true;
                                 }
                             }
                             None => {
+                                failed_to_combine_but_is_placing = true;
+                            }
+                        };
+
+                        if failed_to_combine_but_is_placing {
+                            let mut left_slot: Option<&Card> = None;
+                            if slot.id > 0 {
+                                match game_ui_controller.get_card(&CardSlot {
+                                    id: slot.id - 1,
+                                    team: slot.team,
+                                    slot_type: slot.slot_type,
+                                }) {
+                                    Some(x) => {
+                                        left_slot = Some(cards.get(x.0).unwrap());
+                                    }
+                                    None => {}
+                                }
+                            }
+                            if can_place_card(left_slot, held_card) {
                                 game_ui_controller.push_card_into_stack(
                                     slot.clone(),
                                     card,
                                     stats.clone(),
                                 );
+                            } else {
+                                failover_back_to_original = true;
                             }
-                        };
+                        } else {
+                            failover_back_to_original = true;
+                        }
+                        if failover_back_to_original {
+                            game_ui_controller.push_card_at(
+                                original_slot.clone(),
+                                card,
+                                stats.clone(),
+                            );
+                        }
+
                         game_ui_controller.stack_cards(slot.team, slot.slot_type);
                         *custom_cursor = CustomCursor::Default;
                         turn_state.set(TurnState::ApplyMoves);
@@ -216,6 +246,15 @@ fn cards_can_combine(first_card: &Card, second_card: &Card) -> bool {
             .iter()
             .all(|x| !first_card.colors.contains(x))
         && second_card.card_type == CardType::Equipment;
+}
+
+fn can_place_card(placed_to_left: Option<&Card>, to_place: &Card) -> bool {
+    match placed_to_left {
+        None => true,
+        Some(x) => {
+            return x.colors.last().unwrap() == to_place.colors.first().unwrap();
+        }
+    }
 }
 
 fn get_upgraded_card_type(first_card: &Card, second_card: &Card) -> CardType {
